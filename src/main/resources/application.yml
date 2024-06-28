@@ -1,4 +1,26 @@
-debug: true
+logs-directory: "test-files/var/log/system-a"
+processed-logs-directory: "test-files/var/log/system-a-processed"
+logging:
+  level:
+    root: INFO
+    com:
+      azure:
+        spring:
+          example:
+            file:
+              processing: INFO
+        messaging:
+          eventhubs: WARN
+        core:
+          amqp: WARN
+    org:
+      springframework:
+        integration: WARN
 spring:
-  application:
-    name: sample
+  cloud:
+    azure:
+      eventhubs:
+        connection-string:
+        event-hub-name:
+  config:
+    import: develop.yml
