@@ -3,12 +3,10 @@ processed-logs-directory: "test-files/var/log/system-a-processed"
 logging:
   level:
     root: INFO
+    rujche:
+      sample: INFO
     com:
       azure:
-        spring:
-          example:
-            file:
-              processing: INFO
         messaging:
           eventhubs: WARN
         core:
