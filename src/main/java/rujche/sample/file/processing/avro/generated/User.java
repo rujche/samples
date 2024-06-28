@@ -3,9 +3,8 @@
  *
  * DO NOT EDIT DIRECTLY
  */
-package com.azure.spring.example.file.processing.avro.generated;
+package rujche.sample.file.processing.avro.generated;
 
-import org.apache.avro.generic.GenericArray;
 import org.apache.avro.specific.SpecificData;
 import org.apache.avro.util.Utf8;
 import org.apache.avro.message.BinaryMessageEncoder;
@@ -174,8 +173,8 @@ public class User extends org.apache.avro.specific.SpecificRecordBase implements
    * Creates a new User RecordBuilder.
    * @return A new User RecordBuilder
    */
-  public static com.azure.spring.example.file.processing.avro.generated.User.Builder newBuilder() {
-    return new com.azure.spring.example.file.processing.avro.generated.User.Builder();
+  public static User.Builder newBuilder() {
+    return new User.Builder();
   }
 
   /**
@@ -183,11 +182,11 @@ public class User extends org.apache.avro.specific.SpecificRecordBase implements
    * @param other The existing builder to copy.
    * @return A new User RecordBuilder
    */
-  public static com.azure.spring.example.file.processing.avro.generated.User.Builder newBuilder(com.azure.spring.example.file.processing.avro.generated.User.Builder other) {
+  public static User.Builder newBuilder(User.Builder other) {
     if (other == null) {
-      return new com.azure.spring.example.file.processing.avro.generated.User.Builder();
+      return new User.Builder();
     } else {
-      return new com.azure.spring.example.file.processing.avro.generated.User.Builder(other);
+      return new User.Builder(other);
     }
   }
 
@@ -196,11 +195,11 @@ public class User extends org.apache.avro.specific.SpecificRecordBase implements
    * @param other The existing instance to copy.
    * @return A new User RecordBuilder
    */
-  public static com.azure.spring.example.file.processing.avro.generated.User.Builder newBuilder(com.azure.spring.example.file.processing.avro.generated.User other) {
+  public static User.Builder newBuilder(User other) {
     if (other == null) {
-      return new com.azure.spring.example.file.processing.avro.generated.User.Builder();
+      return new User.Builder();
     } else {
-      return new com.azure.spring.example.file.processing.avro.generated.User.Builder(other);
+      return new User.Builder(other);
     }
   }
 
@@ -224,7 +223,7 @@ public class User extends org.apache.avro.specific.SpecificRecordBase implements
      * Creates a Builder by copying an existing Builder.
      * @param other The existing Builder to copy.
      */
-    private Builder(com.azure.spring.example.file.processing.avro.generated.User.Builder other) {
+    private Builder(User.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.name)) {
         this.name = data().deepCopy(fields()[0].schema(), other.name);
@@ -244,7 +243,7 @@ public class User extends org.apache.avro.specific.SpecificRecordBase implements
      * Creates a Builder by copying an existing User instance
      * @param other The existing instance to copy.
      */
-    private Builder(com.azure.spring.example.file.processing.avro.generated.User other) {
+    private Builder(User other) {
       super(SCHEMA$, MODEL$);
       if (isValidValue(fields()[0], other.name)) {
         this.name = data().deepCopy(fields()[0].schema(), other.name);
@@ -274,7 +273,7 @@ public class User extends org.apache.avro.specific.SpecificRecordBase implements
       * @param value The value of 'name'.
       * @return This builder.
       */
-    public com.azure.spring.example.file.processing.avro.generated.User.Builder setName(java.lang.CharSequence value) {
+    public User.Builder setName(java.lang.CharSequence value) {
       validate(fields()[0], value);
       this.name = value;
       fieldSetFlags()[0] = true;
@@ -294,7 +293,7 @@ public class User extends org.apache.avro.specific.SpecificRecordBase implements
       * Clears the value of the 'name' field.
       * @return This builder.
       */
-    public com.azure.spring.example.file.processing.avro.generated.User.Builder clearName() {
+    public User.Builder clearName() {
       name = null;
       fieldSetFlags()[0] = false;
       return this;
@@ -314,7 +313,7 @@ public class User extends org.apache.avro.specific.SpecificRecordBase implements
       * @param value The value of 'favorite_number'.
       * @return This builder.
       */
-    public com.azure.spring.example.file.processing.avro.generated.User.Builder setFavoriteNumber(java.lang.Integer value) {
+    public User.Builder setFavoriteNumber(java.lang.Integer value) {
       validate(fields()[1], value);
       this.favorite_number = value;
       fieldSetFlags()[1] = true;
@@ -334,7 +333,7 @@ public class User extends org.apache.avro.specific.SpecificRecordBase implements
       * Clears the value of the 'favorite_number' field.
       * @return This builder.
       */
-    public com.azure.spring.example.file.processing.avro.generated.User.Builder clearFavoriteNumber() {
+    public User.Builder clearFavoriteNumber() {
       favorite_number = null;
       fieldSetFlags()[1] = false;
       return this;
@@ -354,7 +353,7 @@ public class User extends org.apache.avro.specific.SpecificRecordBase implements
       * @param value The value of 'favorite_color'.
       * @return This builder.
       */
-    public com.azure.spring.example.file.processing.avro.generated.User.Builder setFavoriteColor(java.lang.CharSequence value) {
+    public User.Builder setFavoriteColor(java.lang.CharSequence value) {
       validate(fields()[2], value);
       this.favorite_color = value;
       fieldSetFlags()[2] = true;
@@ -374,7 +373,7 @@ public class User extends org.apache.avro.specific.SpecificRecordBase implements
       * Clears the value of the 'favorite_color' field.
       * @return This builder.
       */
-    public com.azure.spring.example.file.processing.avro.generated.User.Builder clearFavoriteColor() {
+    public User.Builder clearFavoriteColor() {
       favorite_color = null;
       fieldSetFlags()[2] = false;
       return this;

@@ -1,6 +1,6 @@
-package com.azure.spring.example.file.processing;
+package rujche.sample.file.processing;
 
-import com.azure.spring.example.file.processing.util.FileMessageUtil;
+import rujche.sample.file.processing.util.FileMessageUtil;
 import com.azure.spring.integration.core.handler.DefaultMessageHandler;
 import com.azure.spring.messaging.eventhubs.core.EventHubsTemplate;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ import org.springframework.messaging.MessageHandler;
 
 import java.io.File;
 
-import static com.azure.spring.example.file.processing.util.FileMessageUtil.LINE_NUMBER_IN_FILE;
+import static rujche.sample.file.processing.util.FileMessageUtil.LINE_NUMBER_IN_FILE;
 
 @Configuration
 public class IntegrationConfiguration {

@@ -1,12 +1,12 @@
-package com.azure.spring.example.file.processing;
+package rujche.sample.file.processing;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.integration.aop.ReceiveMessageAdvice;
 import org.springframework.messaging.Message;
 
-import static com.azure.spring.example.file.processing.util.FileMessageUtil.getAbsolutePath;
-import static com.azure.spring.example.file.processing.util.FileMessageUtil.getFileSize;
+import static rujche.sample.file.processing.util.FileMessageUtil.getAbsolutePath;
+import static rujche.sample.file.processing.util.FileMessageUtil.getFileSize;
 
 public class ExitSystemReceiveMessageAdvice implements ReceiveMessageAdvice {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExitSystemReceiveMessageAdvice.class);

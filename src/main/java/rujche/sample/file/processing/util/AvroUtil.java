@@ -1,6 +1,6 @@
-package com.azure.spring.example.file.processing.util;
+package rujche.sample.file.processing.util;
 
-import com.azure.spring.example.file.processing.avro.generated.User;
+import rujche.sample.file.processing.avro.generated.User;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.io.DatumReader;
