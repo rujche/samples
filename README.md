@@ -15,7 +15,7 @@
 ### 1.2. File Processing Requirements
 
 #### 1.2.1. Functional Requirements
-1. Before app starts, the number of files to be processed in unknown.
+1. Before app starts, the number of files to be processed is unknown.
    - All files in specific folder should be processed.
    - All files in sub folder should be processed, too.
 2. Each line should be converted into an [avro](https://avro.apache.org/docs/1.11.1/) object. Here is the format of avro:
