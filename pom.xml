@@ -6,12 +6,12 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.0.4</version>
+    <version>3.3.1</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
-  <groupId>com.azure.spring.sample</groupId>
-  <artifactId>azure-spring-apps-file-processing-sample</artifactId>
+  <groupId>rujche</groupId>
+  <artifactId>sample</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <properties>
@@ -42,12 +42,12 @@
     <dependency>
       <groupId>org.apache.avro</groupId>
       <artifactId>avro</artifactId>
-      <version>1.11.0</version>
+      <version>1.11.3</version>
     </dependency>
     <dependency>
       <groupId>org.xerial.snappy</groupId>
       <artifactId>snappy-java</artifactId>
-      <version>1.1.9.1</version>
+      <version>1.1.10.4</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -61,7 +61,7 @@
       <dependency>
         <groupId>com.azure.spring</groupId>
         <artifactId>spring-cloud-azure-dependencies</artifactId>
-        <version>5.0.0</version>
+        <version>5.13.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
