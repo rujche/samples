@@ -8,8 +8,10 @@ main() {
   location=$2
   resource_name_prefix=$3
   resource_name_suffix=$4
+
   resource_group="${resource_name_prefix}rg${resource_name_suffix}"
   storage_account="${resource_name_prefix}sa${resource_name_suffix}"
+  file_share="${resource_name_prefix}fs${resource_name_suffix}"
   eventhubs_namespace="${resource_name_prefix}ehn${resource_name_suffix}"
   eventhub="${resource_name_prefix}eh${resource_name_suffix}"
   environment="${resource_name_prefix}env${resource_name_suffix}"
@@ -17,10 +19,10 @@ main() {
 
   # prepare_azure_cli_environment
   # create_resource_group "${location}" "${resource_group}"
-  # create_storage_account "${subscription}" "${location}" "${resource_group}" "${storage_account}"
+  create_storage_account_and_file_share "${subscription}" "${location}" "${resource_group}" "${storage_account}" "${file_share}"
   # create_eventhub "${subscription}" "${location}" "${resource_group}" "${eventhubs_namespace}" "${eventhub}"
   # assign_event_hub_data_owner_and_storage_blob_data_owner_to_current_user "${subscription}" "${resource_group}"
-  update_application_yml "${eventhubs_namespace}" "${eventhub}"
+  # update_application_yml "${eventhubs_namespace}" "${eventhub}"
   # build_and_deploy_container_app "${subscription}" "${location}" "${resource_group}" "${environment}" "${container_app}"
   echo "main ended."
 }
@@ -45,12 +47,13 @@ create_resource_group() {
   echo "create_resource_group ended."
 }
 
-create_storage_account() {
+create_storage_account_and_file_share() {
   echo "create_storage_account started."
   subscription=$1
   location=$2
   resource_group=$3
   storage_account=$4
+  file_share=$5
   az storage account create \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
@@ -60,6 +63,15 @@ create_storage_account() {
     --kind StorageV2 \
     --min-tls-version TLS1_2 \
     --allow-blob-public-access false
+
+  az storage share-rm create \
+    --subscription "${subscription}" \
+    --resource-group "${resource_group}" \
+    --storage-account "${storage_account}" \
+    --name "${file_share}" \
+    --quota 1 \
+    --enabled-protocols SMB \
+    --output none
   echo "create_storage_account ended."
 }
 
