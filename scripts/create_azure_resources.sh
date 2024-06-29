@@ -10,7 +10,7 @@ main() {
   resource_name_suffix=$4
   resource_group="${resource_name_prefix}rg${resource_name_suffix}"
   storage_account="${resource_name_prefix}sa${resource_name_suffix}"
-  eventhub_namespace="${resource_name_prefix}ehn${resource_name_suffix}"
+  eventhubs_namespace="${resource_name_prefix}ehn${resource_name_suffix}"
   eventhub="${resource_name_prefix}eh${resource_name_suffix}"
   environment="${resource_name_prefix}env${resource_name_suffix}"
   container_app="${resource_name_prefix}ca${resource_name_suffix}"
@@ -18,8 +18,9 @@ main() {
   # prepare_azure_cli_environment
   # create_resource_group "${location}" "${resource_group}"
   # create_storage_account "${subscription}" "${location}" "${resource_group}" "${storage_account}"
-  # create_eventhub "${subscription}" "${location}" "${resource_group}" "${eventhub_namespace}" "${eventhub}"
-  assign_event_hub_data_owner_and_storage_blob_data_owner_to_current_user "${subscription}" "${resource_group}"
+  # create_eventhub "${subscription}" "${location}" "${resource_group}" "${eventhubs_namespace}" "${eventhub}"
+  # assign_event_hub_data_owner_and_storage_blob_data_owner_to_current_user "${subscription}" "${resource_group}"
+  update_application_yml "${eventhubs_namespace}" "${eventhub}"
   # build_and_deploy_container_app "${subscription}" "${location}" "${resource_group}" "${environment}" "${container_app}"
   echo "main ended."
 }
@@ -67,17 +68,17 @@ create_eventhub() {
   subscription=$1
   location=$2
   resource_group=$3
-  eventhub_namespace=$4
+  eventhubs_namespace=$4
   eventhub=$5
   az eventhubs namespace create \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
     --location "${location}" \
-    --name "${eventhub_namespace}"
+    --name "${eventhubs_namespace}"
   az eventhubs eventhub create \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
-    --namespace-name "${eventhub_namespace}" \
+    --namespace-name "${eventhubs_namespace}" \
     --name "${eventhub}"
 }
 
@@ -114,6 +115,14 @@ assign_event_hub_data_owner_and_storage_blob_data_owner_to_current_user() {
     --role "Storage Blob Data Owner" \
     --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
     || true # Ignore error: RoleAssignmentExists
+}
+
+update_application_yml() {
+  eventhubs_namespace=$1
+  eventhub=$2
+  file="../src/main/resources/application.yml"
+  sed -i "s/\${EVENT_HUBS_NAMESPACE}/${eventhubs_namespace}/" "${file}"
+  sed -i "s/\${EVENT_HUB_NAME}/${eventhub}/" "${file}"
 }
 
 main "6c933f90-8115-4392-90f2-7077c9fa5dbd" "centralus" "rujche" "24062903"
