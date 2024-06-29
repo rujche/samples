@@ -16,9 +16,10 @@ main() {
   container_app="${resource_name_prefix}ca${resource_name_suffix}"
 
   # prepare_azure_cli_environment
-  create_resource_group "${location}" "${resource_group}"
-  create_storage_account "${subscription}" "${location}" "${resource_group}" "${storage_account}"
-  create_eventhub "${subscription}" "${location}" "${resource_group}" "${eventhub_namespace}" "${eventhub}"
+  # create_resource_group "${location}" "${resource_group}"
+  # create_storage_account "${subscription}" "${location}" "${resource_group}" "${storage_account}"
+  # create_eventhub "${subscription}" "${location}" "${resource_group}" "${eventhub_namespace}" "${eventhub}"
+  assign_event_hub_data_owner_and_storage_blob_data_owner_to_current_user "${subscription}" "${resource_group}"
   # build_and_deploy_container_app "${subscription}" "${location}" "${resource_group}" "${environment}" "${container_app}"
   echo "main ended."
 }
@@ -95,6 +96,24 @@ build_and_deploy_container_app() {
     --name "${container_app}" \
     --source ..
   echo "build_and_deploy_container_app ended."
+}
+
+assign_event_hub_data_owner_and_storage_blob_data_owner_to_current_user() {
+  subscription=$1
+  resource_group=$2
+  assignee="$(az ad signed-in-user show --query id -o tsv)"
+  az role assignment create \
+    --subscription "${subscription}" \
+    --assignee "${assignee}" \
+    --role "Azure Event Hubs Data Owner" \
+    --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
+    || true # Ignore error: RoleAssignmentExists
+  az role assignment create \
+    --assignee "${assignee}" \
+    --subscription "${subscription}" \
+    --role "Storage Blob Data Owner" \
+    --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
+    || true # Ignore error: RoleAssignmentExists
 }
 
 main "6c933f90-8115-4392-90f2-7077c9fa5dbd" "centralus" "rujche" "24062903"
