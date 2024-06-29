@@ -3,8 +3,6 @@ processed-logs-directory: "test-files/var/log/system-a-processed"
 logging:
   level:
     root: INFO
-    rujche:
-      sample: INFO
     com:
       azure:
         messaging:
@@ -18,7 +16,5 @@ spring:
   cloud:
     azure:
       eventhubs:
-        connection-string:
-        event-hub-name:
-  config:
-    import: develop.yml
+        namespace: ${EVENT_HUBS_NAMESPACE}
+        event-hub-name: ${EVENT_HUB_NAME}
