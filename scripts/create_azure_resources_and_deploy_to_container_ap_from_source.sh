@@ -7,7 +7,7 @@ main() {
   start_time=$(date +%s)
   subscription="6c933f90-8115-4392-90f2-7077c9fa5dbd"
   location="centralus"
-  resource_name_prefix="rujche24063002"
+  resource_name_prefix="rujche24063003"
 
   resource_group="${resource_name_prefix}rg"
   storage_account="${resource_name_prefix}sa"
