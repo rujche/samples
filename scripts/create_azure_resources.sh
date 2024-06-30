@@ -18,13 +18,14 @@ main() {
   container_app="${resource_name_prefix}ca${resource_name_suffix}"
 
   # prepare_azure_cli_environment
-  # create_resource_group "${location}" "${resource_group}"
-  # create_storage_account_and_file_share "${subscription}" "${location}" "${resource_group}" "${storage_account}" "${file_share}"
-  # create_eventhub "${subscription}" "${location}" "${resource_group}" "${eventhubs_namespace}" "${eventhub}"
+  # create_resource_group "${subscription}" "${resource_group}" "${location}"
+  # create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
+  # create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
+  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
   # assign_roles_to_current_user "${subscription}" "${resource_group}"
   # update_application_yml "${eventhubs_namespace}" "${eventhub}"
-  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/var/log/system-a" "var/log/system-a"
-  # build_and_deploy_container_app "${subscription}" "${location}" "${resource_group}" "${environment}" "${container_app}"
+  # upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/var/log/system-a" "var/log/system-a"
+  # build_and_deploy_container_app "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
   echo "main ended."
 }
 
@@ -40,8 +41,9 @@ prepare_azure_cli_environment() {
 
 create_resource_group() {
   echo "create_resource_group started."
-  location=$1
+  subscription=$1
   resource_group_name=$2
+  location=$3
   az group create \
     --name "${resource_group_name}" \
     --location "${location}"
@@ -51,8 +53,8 @@ create_resource_group() {
 create_storage_account_and_file_share() {
   echo "create_storage_account started."
   subscription=$1
-  location=$2
-  resource_group=$3
+  resource_group=$2
+  location=$3
   storage_account=$4
   file_share=$5
   az storage account create \
@@ -79,8 +81,8 @@ create_storage_account_and_file_share() {
 create_eventhub() {
   echo "create_eventhub started."
   subscription=$1
-  location=$2
-  resource_group=$3
+  resource_group=$2
+  location=$3
   eventhubs_namespace=$4
   eventhub=$5
   az eventhubs namespace create \
@@ -93,6 +95,21 @@ create_eventhub() {
     --resource-group "${resource_group}" \
     --namespace-name "${eventhubs_namespace}" \
     --name "${eventhub}"
+}
+
+create_container_apps_environment() {
+  echo "create_container_apps_environment started."
+  subscription=$1
+  resource_group=$2
+  location=$3
+  environment=$4
+  az containerapp env create \
+    --subscription "${subscription}" \
+    --resource-group "${resource_group}" \
+    --location "${location}" \
+    --name "${environment}" \
+    --query "properties.provisioningState"
+  echo "create_container_apps_environment ended."
 }
 
 assign_roles_to_current_user() {
@@ -142,8 +159,8 @@ update_application_yml() {
 build_and_deploy_container_app() {
   echo "build_and_deploy_container_app started."
   subscription=$1
-  location=$2
-  resource_group=$3
+  resource_group=$2
+  location=$3
   environment=$4
   container_app=$5
   az containerapp up \
