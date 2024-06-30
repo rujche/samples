@@ -25,10 +25,10 @@ main() {
   # create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
   # create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
   # link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_mount}"
-  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_mount}"
+  # mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_mount}"
   # assign_roles_to_current_user "${subscription}" "${resource_group}"
   # update_application_yml "${eventhubs_namespace}" "${eventhub}"
-  # upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/var/log/system-a" "var/log/system-a"
+  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/2024-07-01/" "unprocessed/2024-07-01/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
   # build_and_deploy_container_app "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
   echo "main ended."
 }
@@ -55,7 +55,7 @@ create_resource_group() {
 }
 
 create_storage_account_and_file_share() {
-  echo "create_storage_account started."
+  echo "create_storage_account_and_file_share started."
   subscription=$1
   resource_group=$2
   location=$3
@@ -79,7 +79,7 @@ create_storage_account_and_file_share() {
     --quota 1 \
     --enabled-protocols SMB \
     --output none
-  echo "create_storage_account ended."
+  echo "create_storage_account_and_file_share ended."
 }
 
 create_eventhub() {
@@ -225,6 +225,7 @@ upload_test_files_to_file_share() {
   source=$3
   destination_path=$4
   az storage file upload-batch \
+      --subscription "${subscription}" \
       --account-name "${storage_account}" \
       --destination  "${file_share}" \
       --source "${source}" \

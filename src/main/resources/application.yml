@@ -1,5 +1,5 @@
-logs-directory: "test-files/var/log/system-a"
-processed-logs-directory: "test-files/var/log/system-a-processed"
+logs-directory: "test-files/unprocessed"
+processed-logs-directory: "test-files/processed"
 logging:
   level:
     root: INFO
