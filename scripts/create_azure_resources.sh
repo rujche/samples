@@ -19,10 +19,11 @@ main() {
 
   # prepare_azure_cli_environment
   # create_resource_group "${location}" "${resource_group}"
-  create_storage_account_and_file_share "${subscription}" "${location}" "${resource_group}" "${storage_account}" "${file_share}"
+  # create_storage_account_and_file_share "${subscription}" "${location}" "${resource_group}" "${storage_account}" "${file_share}"
   # create_eventhub "${subscription}" "${location}" "${resource_group}" "${eventhubs_namespace}" "${eventhub}"
-  # assign_event_hub_data_owner_and_storage_blob_data_owner_to_current_user "${subscription}" "${resource_group}"
+  # assign_roles_to_current_user "${subscription}" "${resource_group}"
   # update_application_yml "${eventhubs_namespace}" "${eventhub}"
+  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/var/log/system-a" "var/log/system-a"
   # build_and_deploy_container_app "${subscription}" "${location}" "${resource_group}" "${environment}" "${container_app}"
   echo "main ended."
 }
@@ -111,7 +112,7 @@ build_and_deploy_container_app() {
   echo "build_and_deploy_container_app ended."
 }
 
-assign_event_hub_data_owner_and_storage_blob_data_owner_to_current_user() {
+assign_roles_to_current_user() {
   subscription=$1
   resource_group=$2
   assignee="$(az ad signed-in-user show --query id -o tsv)"
@@ -127,6 +128,24 @@ assign_event_hub_data_owner_and_storage_blob_data_owner_to_current_user() {
     --role "Storage Blob Data Owner" \
     --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
     || true # Ignore error: RoleAssignmentExists
+  az role assignment create \
+    --assignee "${assignee}" \
+    --subscription "${subscription}" \
+    --role "Storage File Data SMB Share Contributor" \
+    --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
+    || true # Ignore error: RoleAssignmentExists
+}
+
+upload_test_files_to_file_share() {
+  storage_account=$1
+  file_share=$2
+  source=$3
+  destination_path=$4
+  az storage file upload-batch \
+      --account-name "${storage_account}" \
+      --destination  "${file_share}" \
+      --source "${source}" \
+      --destination-path "${destination_path}"
 }
 
 update_application_yml() {
