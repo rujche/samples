@@ -23,7 +23,9 @@ main() {
   # create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
   # create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
   # create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
-  link_container_apps_environment_to_file_share "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_mount}"
+  # link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_mount}"
+  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
+  # mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}"
   # assign_roles_to_current_user "${subscription}" "${resource_group}"
   # update_application_yml "${eventhubs_namespace}" "${eventhub}"
   # upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/var/log/system-a" "var/log/system-a"
@@ -114,8 +116,28 @@ create_container_apps_environment() {
   echo "create_container_apps_environment ended."
 }
 
-link_container_apps_environment_to_file_share() {
-  echo "link_container_apps_environment_to_file_share started."
+create_container_app() {
+  subscription=$1
+  resource_group=$2
+  environment=$3
+  container_app=$4
+  echo "create_container_app started."
+  az containerapp create \
+    --subscription "${subscription}" \
+    --resource-group "${resource_group}" \
+    --environment "${environment}" \
+    --name "${container_app}" \
+    --image nginx \
+    --min-replicas 1 \
+    --max-replicas 1 \
+    --target-port 80 \
+    --ingress external \
+    --query properties.configuration.ingress.fqdn
+  echo "create_container_app ended."
+}
+
+link_file_share_to_container_apps_environment() {
+  echo "link_file_share_to_container_apps_environment started."
   subscription=$1
   resource_group=$2
   environment=$3
@@ -133,7 +155,20 @@ link_container_apps_environment_to_file_share() {
     --storage-name "${storage_mount}" \
     --access-mode ReadWrite \
     --output table
-  echo "link_container_apps_environment_to_file_share ended."
+  echo "link_file_share_to_container_apps_environment ended."
+}
+
+mount_file_share_to_container_apps() {
+  echo "mount_file_share_to_container_apps started."
+  subscription=$1
+  resource_group=$2
+  container_app=$3
+  az containerapp show \
+    --subscription "${subscription}" \
+    --resource-group "${resource_group}" \
+    --name "${container_app}" \
+    --output yaml
+  echo "mount_file_share_to_container_apps ended."
 }
 
 assign_roles_to_current_user() {
