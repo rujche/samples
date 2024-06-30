@@ -4,33 +4,36 @@ cd "$(dirname "$0")"
 
 main() {
   echo "main started."
-  subscription=$1
-  location=$2
-  resource_name_prefix=$3
-  resource_name_suffix=$4
+  start_time=$(date +%s)
+  subscription="6c933f90-8115-4392-90f2-7077c9fa5dbd"
+  location="centralus"
+  resource_name_prefix="rujche24063002"
 
-  resource_group="${resource_name_prefix}rg${resource_name_suffix}"
-  storage_account="${resource_name_prefix}sa${resource_name_suffix}"
-  file_share="${resource_name_prefix}fs${resource_name_suffix}"
-  eventhubs_namespace="${resource_name_prefix}ehn${resource_name_suffix}"
-  eventhub="${resource_name_prefix}eh${resource_name_suffix}"
-  environment="${resource_name_prefix}env${resource_name_suffix}"
-  container_app="${resource_name_prefix}ca${resource_name_suffix}"
-  storage_mount="${resource_name_prefix}sm${resource_name_suffix}"
+  resource_group="${resource_name_prefix}rg"
+  storage_account="${resource_name_prefix}sa"
+  file_share="${resource_name_prefix}fs"
+  eventhubs_namespace="${resource_name_prefix}ehn"
+  eventhub="${resource_name_prefix}eh"
+  environment="${resource_name_prefix}env"
+  container_app="${resource_name_prefix}ca"
+  storage_mount="${resource_name_prefix}sm"
 
   # prepare_azure_cli_environment
-  # create_resource_group "${subscription}" "${resource_group}" "${location}"
-  # create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
-  # create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
-  # create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
-  # create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
-  # link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_mount}"
-  # mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_mount}"
-  # assign_roles_to_current_user "${subscription}" "${resource_group}"
+  create_resource_group "${subscription}" "${resource_group}" "${location}"
+  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
+  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
+  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
+  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
+  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_mount}"
+  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_mount}"
+  assign_roles_to_current_user "${subscription}" "${resource_group}"
   update_application_yml "${eventhubs_namespace}" "${eventhub}"
-  # upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/2024-07-01/" "unprocessed/2024-07-01/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
-  # build_and_deploy_container_app "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
-  echo "main ended."
+  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/2024-07-01/" "unprocessed/2024-07-01/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
+  build_and_deploy_container_app "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
+
+  end_time=$(date +%s)
+  runtime=$((end_time-start_time))
+  echo "main ended. Consumed time = ${runtime}."
 }
 
 prepare_azure_cli_environment() {
@@ -130,7 +133,6 @@ create_container_app() {
     --image nginx \
     --min-replicas 1 \
     --max-replicas 1 \
-    --ingress external \
     --query properties.configuration.ingress.fqdn
   echo "create_container_app ended."
 }
@@ -259,4 +261,4 @@ build_and_deploy_container_app() {
   echo "build_and_deploy_container_app ended."
 }
 
-main "6c933f90-8115-4392-90f2-7077c9fa5dbd" "centralus" "rujche" "24062903"
+main
