@@ -18,7 +18,7 @@ main() {
   container_app="${resource_name_prefix}ca"
   storage_mount="${resource_name_prefix}sm"
 
-  # prepare_azure_cli_environment
+#  prepare_azure_cli_environment
   create_resource_group "${subscription}" "${resource_group}" "${location}"
   create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
   create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
@@ -27,13 +27,14 @@ main() {
   link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_mount}"
   mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_mount}"
   assign_roles_to_current_user "${subscription}" "${resource_group}"
-  update_application_yml "${eventhubs_namespace}" "${eventhub}"
   upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/2024-07-01/" "unprocessed/2024-07-01/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
-  build_and_deploy_container_app "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
+
+  update_application_yml "${eventhubs_namespace}" "${eventhub}"
+  deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
 
   end_time=$(date +%s)
   runtime=$((end_time-start_time))
-  echo "main ended. Consumed time = ${runtime}."
+  echo "main ended. Consumed time = ${runtime} seconds."
 }
 
 prepare_azure_cli_environment() {
@@ -129,11 +130,7 @@ create_container_app() {
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
     --environment "${environment}" \
-    --name "${container_app}" \
-    --image nginx \
-    --min-replicas 1 \
-    --max-replicas 1 \
-    --query properties.configuration.ingress.fqdn
+    --name "${container_app}"
   echo "create_container_app ended."
 }
 
@@ -235,7 +232,7 @@ upload_test_files_to_file_share() {
 }
 
 update_application_yml() {
-  echo "update_application_yml started."
+  echo "uto_pdate_application_yml started."
   eventhubs_namespace=$1
   eventhub=$2
   file="../src/main/resources/application.yml"
@@ -244,8 +241,8 @@ update_application_yml() {
   echo "update_application_yml ended."
 }
 
-build_and_deploy_container_app() {
-  echo "build_and_deploy_container_app started."
+deploy_to_container_app_by_source() {
+  echo "deploy_to_container_app_by_source started."
   subscription=$1
   resource_group=$2
   location=$3
@@ -258,7 +255,7 @@ build_and_deploy_container_app() {
     --environment "${environment}" \
     --name "${container_app}" \
     --source ..
-  echo "build_and_deploy_container_app ended."
+  echo "deploy_to_container_app_by_source ended."
 }
 
 main
