@@ -95,23 +95,6 @@ create_eventhub() {
     --name "${eventhub}"
 }
 
-build_and_deploy_container_app() {
-  echo "build_and_deploy_container_app started."
-  subscription=$1
-  location=$2
-  resource_group=$3
-  environment=$4
-  container_app=$5
-  az containerapp up \
-    --subscription "${subscription}" \
-    --resource-group "${resource_group}" \
-    --location "${location}" \
-    --environment "${environment}" \
-    --name "${container_app}" \
-    --source ..
-  echo "build_and_deploy_container_app ended."
-}
-
 assign_roles_to_current_user() {
   subscription=$1
   resource_group=$2
@@ -154,6 +137,23 @@ update_application_yml() {
   file="../src/main/resources/application.yml"
   sed -i "s/\${EVENT_HUBS_NAMESPACE}/${eventhubs_namespace}/" "${file}"
   sed -i "s/\${EVENT_HUB_NAME}/${eventhub}/" "${file}"
+}
+
+build_and_deploy_container_app() {
+  echo "build_and_deploy_container_app started."
+  subscription=$1
+  location=$2
+  resource_group=$3
+  environment=$4
+  container_app=$5
+  az containerapp up \
+    --subscription "${subscription}" \
+    --resource-group "${resource_group}" \
+    --location "${location}" \
+    --environment "${environment}" \
+    --name "${container_app}" \
+    --source ..
+  echo "build_and_deploy_container_app ended."
 }
 
 main "6c933f90-8115-4392-90f2-7077c9fa5dbd" "centralus" "rujche" "24062903"
