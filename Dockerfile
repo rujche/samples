@@ -12,4 +12,5 @@ RUN ./mvnw package
 # Runtime stage
 FROM mcr.microsoft.com/openjdk/jdk:17-ubuntu
 COPY --from=build /app/target/*.jar /usr/src/myapp/app.jar
+VOLUME ["/var/log/system-a"]
 CMD ["/usr/bin/java", "-jar", "/usr/src/myapp/app.jar"]
