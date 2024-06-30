@@ -16,12 +16,14 @@ main() {
   eventhub="${resource_name_prefix}eh${resource_name_suffix}"
   environment="${resource_name_prefix}env${resource_name_suffix}"
   container_app="${resource_name_prefix}ca${resource_name_suffix}"
+  storage_mount="${resource_name_prefix}sm${resource_name_suffix}"
 
   # prepare_azure_cli_environment
   # create_resource_group "${subscription}" "${resource_group}" "${location}"
   # create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
   # create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
-  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
+  # create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
+  link_container_apps_environment_to_file_share "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_mount}"
   # assign_roles_to_current_user "${subscription}" "${resource_group}"
   # update_application_yml "${eventhubs_namespace}" "${eventhub}"
   # upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/var/log/system-a" "var/log/system-a"
@@ -112,7 +114,30 @@ create_container_apps_environment() {
   echo "create_container_apps_environment ended."
 }
 
+link_container_apps_environment_to_file_share() {
+  echo "link_container_apps_environment_to_file_share started."
+  subscription=$1
+  resource_group=$2
+  environment=$3
+  storage_account=$4
+  file_share=$5
+  storage_mount=$6
+  storage_account_key="$(az storage account keys list -n "${storage_account}" --query "[0].value" -o tsv)"
+  az containerapp env storage set \
+    --subscription "${subscription}" \
+    --resource-group "${resource_group}" \
+    --name "${environment}" \
+    --azure-file-account-name "${storage_account}" \
+    --azure-file-share-name "${file_share}" \
+    --azure-file-account-key "${storage_account_key}" \
+    --storage-name "${storage_mount}" \
+    --access-mode ReadWrite \
+    --output table
+  echo "link_container_apps_environment_to_file_share ended."
+}
+
 assign_roles_to_current_user() {
+  echo "assign_roles_to_current_user started."
   subscription=$1
   resource_group=$2
   assignee="$(az ad signed-in-user show --query id -o tsv)"
@@ -134,9 +159,11 @@ assign_roles_to_current_user() {
     --role "Storage File Data SMB Share Contributor" \
     --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
     || true # Ignore error: RoleAssignmentExists
+  echo "assign_roles_to_current_user ended."
 }
 
 upload_test_files_to_file_share() {
+  echo "upload_test_files_to_file_share started."
   storage_account=$1
   file_share=$2
   source=$3
@@ -146,14 +173,17 @@ upload_test_files_to_file_share() {
       --destination  "${file_share}" \
       --source "${source}" \
       --destination-path "${destination_path}"
+  echo "upload_test_files_to_file_share ended."
 }
 
 update_application_yml() {
+  echo "update_application_yml started."
   eventhubs_namespace=$1
   eventhub=$2
   file="../src/main/resources/application.yml"
   sed -i "s/\${EVENT_HUBS_NAMESPACE}/${eventhubs_namespace}/" "${file}"
   sed -i "s/\${EVENT_HUB_NAME}/${eventhub}/" "${file}"
+  echo "update_application_yml ended."
 }
 
 build_and_deploy_container_app() {
