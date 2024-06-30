@@ -12,5 +12,4 @@ RUN ./mvnw package
 # Runtime stage
 FROM mcr.microsoft.com/openjdk/jdk:17-ubuntu
 COPY --from=build /app/target/*.jar /usr/src/myapp/app.jar
-EXPOSE 8080
 CMD ["/usr/bin/java", "-jar", "/usr/src/myapp/app.jar"]

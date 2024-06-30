@@ -27,8 +27,8 @@ main() {
   # link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_mount}"
   # mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_mount}"
   # assign_roles_to_current_user "${subscription}" "${resource_group}"
-  # update_application_yml "${eventhubs_namespace}" "${eventhub}"
-  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/2024-07-01/" "unprocessed/2024-07-01/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
+  update_application_yml "${eventhubs_namespace}" "${eventhub}"
+  # upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/2024-07-01/" "unprocessed/2024-07-01/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
   # build_and_deploy_container_app "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
   echo "main ended."
 }
@@ -130,7 +130,6 @@ create_container_app() {
     --image nginx \
     --min-replicas 1 \
     --max-replicas 1 \
-    --target-port 80 \
     --ingress external \
     --query properties.configuration.ingress.fqdn
   echo "create_container_app ended."
