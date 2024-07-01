@@ -7,7 +7,7 @@ main() {
   start_time=$(date +%s)
   subscription="6c933f90-8115-4392-90f2-7077c9fa5dbd"
   location="centralus"
-  resource_name_prefix="rujche24063003"
+  resource_name_prefix="rujche24063006"
 
   resource_group="${resource_name_prefix}rg"
   storage_account="${resource_name_prefix}sa"
@@ -16,21 +16,23 @@ main() {
   eventhub="${resource_name_prefix}eh"
   environment="${resource_name_prefix}env"
   container_app="${resource_name_prefix}ca"
-  storage_mount="${resource_name_prefix}sm"
+  storage_name="${resource_name_prefix}sn"
 
 #  prepare_azure_cli_environment
-  create_resource_group "${subscription}" "${resource_group}" "${location}"
-  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
-  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
-  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
-  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
-  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_mount}"
-  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_mount}"
-  assign_roles_to_current_user "${subscription}" "${resource_group}"
-  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/2024-07-01/" "unprocessed/2024-07-01/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
 
-  update_application_yml "${eventhubs_namespace}" "${eventhub}"
-  deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
+#  create_resource_group "${subscription}" "${resource_group}" "${location}"
+#  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
+##  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
+#  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
+#  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
+#  assign_roles_to_current_user "${subscription}" "${resource_group}"
+#  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/2024-07-01/" "unprocessed/2024-07-01/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
+
+  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
+  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}"
+#
+#  update_application_yml "${eventhubs_namespace}" "${eventhub}"
+#  deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
 
   end_time=$(date +%s)
   runtime=$((end_time-start_time))
@@ -141,7 +143,7 @@ link_file_share_to_container_apps_environment() {
   environment=$3
   storage_account=$4
   file_share=$5
-  storage_mount=$6
+  storage_name=$6
   storage_account_key="$(az storage account keys list -n "${storage_account}" --query "[0].value" -o tsv)"
   az containerapp env storage set \
     --subscription "${subscription}" \
@@ -150,7 +152,7 @@ link_file_share_to_container_apps_environment() {
     --azure-file-account-name "${storage_account}" \
     --azure-file-share-name "${file_share}" \
     --azure-file-account-key "${storage_account_key}" \
-    --storage-name "${storage_mount}" \
+    --storage-name "${storage_name}" \
     --access-mode ReadWrite \
     --output table
   echo "link_file_share_to_container_apps_environment ended."
@@ -161,12 +163,11 @@ mount_file_share_to_container_apps() {
   subscription=$1
   resource_group=$2
   container_app=$3
-  storage_mount=$4
-  volume_name="volume${storage_mount}"
+  storage_name=$4
   rm mount_file_share_to_container_apps_*.yml || true
   get_container_app_configuration "${subscription}" "${resource_group}" "${container_app}" > mount_file_share_to_container_apps_1.yml
-  sed -e "s/^    volumes: null$/    volumes:\n    - name: ${volume_name}\n      storageName: ${storage_mount}\n      storageType: AzureFile/g" \
-    -e "s/^      name: ${container_app}$/      name: ${container_app}\n      volumeMounts:\n      - volumeName: ${volume_name}\n        mountPath: \/var\/log\/system-a/g" \
+  sed -e "s/^    volumes: null$/    volumes:\n    - name: ${storage_name}\n      storageName: ${storage_name}\n      storageType: AzureFile/g" \
+    -e "s/^      name: ${container_app}$/      name: ${container_app}\n      volumeMounts:\n      - volumeName: ${storage_name}\n        mountPath: \/var\/log\/system-a/g" \
     mount_file_share_to_container_apps_1.yml \
     > mount_file_share_to_container_apps_2.yml
   az containerapp update \
