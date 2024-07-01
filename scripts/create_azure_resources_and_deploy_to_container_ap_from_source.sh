@@ -28,7 +28,8 @@ main() {
 #  create_container_apps_environment "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}"
 #  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
 #  assign_roles_to_current_user "${subscription}" "${resource_group}"
-#  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
+#  assign_roles_to_container_app_managed_identity "${subscription}" "${resource_group}" "${container_app}"
+  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
 #
 #  add_storage_account_network_role "${subscription}" "${resource_group}" "${container_app}" "${storage_account}"
 #  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
@@ -37,7 +38,8 @@ main() {
 #  update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
 #  update_application_yml_about_log_directory "${mount_path}"
 #  deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}" "${container_app}"
-  restart_container_app "${subscription}" "${resource_group}" "${container_app}"
+#  restart_container_app "${subscription}" "${resource_group}" "${container_app}"
+
   end_time=$(date +%s)
   runtime=$((end_time-start_time))
   echo "main ended. Consumed time = ${runtime} seconds."
@@ -136,7 +138,8 @@ create_container_app() {
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
     --environment "${environment}" \
-    --name "${container_app}"
+    --name "${container_app}" \
+    --system-assigned
   echo "create_container_app ended."
 }
 
@@ -245,6 +248,33 @@ assign_roles_to_current_user() {
     --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
     || true # Ignore error: RoleAssignmentExists
   echo "assign_roles_to_current_user ended."
+}
+
+get_container_app_principal_id() { # Log should be avoided because its console output will be returned to outer function.
+  subscription=$1
+  resource_group=$2
+  container_app=$3
+  az containerapp show \
+    --subscription "${subscription}" \
+    --resource-group "${resource_group}" \
+    --name "${container_app}" \
+    --query "identity.principalId" \
+  | sed -e "s/\"//g"
+}
+
+assign_roles_to_container_app_managed_identity() {
+  echo "assign_roles_to_container_app_managed_identity started."
+  subscription=$1
+  resource_group=$2
+  container_app=$3
+  assignee="$(get_container_app_principal_id "${subscription}" "${resource_group}" "${container_app}")"
+  az role assignment create \
+    --subscription "${subscription}" \
+    --assignee "${assignee}" \
+    --role "Azure Event Hubs Data Owner" \
+    --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
+    || true # Ignore error: RoleAssignmentExists
+  echo "assign_roles_to_container_app_managed_identity ended."
 }
 
 upload_test_files_to_file_share() {
