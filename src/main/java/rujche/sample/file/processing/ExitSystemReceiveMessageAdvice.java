@@ -18,7 +18,7 @@ public class ExitSystemReceiveMessageAdvice implements ReceiveMessageAdvice {
         if (resultIsNull != lastResultIsNull) {
             LOGGER.info("Message receiving status changed, received message is {}.", resultIsNull ? "null" : "not null");
             lastResultIsNull = resultIsNull;
-            // System.exit(0);
+            System.exit(0);
         }
         if (!resultIsNull) {
             LOGGER.info("Start to handle file. file = {}, fileSize = {}. ",
