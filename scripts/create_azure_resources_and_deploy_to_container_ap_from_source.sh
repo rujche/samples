@@ -9,6 +9,7 @@ main() {
   location="centralus"
   container_apps_location="westus2" # This is used for handling Security Policy used in this subscription: "6c933f90-8115-4392-90f2-7077c9fa5dbd"
   resource_name_prefix="rujche24070102"
+  mount_path="\/var\/log\/system-a" # Escape to be used in sed.
 
   resource_group="${resource_name_prefix}rg"
   storage_account="${resource_name_prefix}sa"
@@ -21,21 +22,22 @@ main() {
 
 #  prepare_azure_cli_environment
 
-  create_resource_group "${subscription}" "${resource_group}" "${location}"
-  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
-#  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
-  create_container_apps_environment "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}"
-  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
-  assign_roles_to_current_user "${subscription}" "${resource_group}"
-  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/2024-07-01/" "unprocessed/2024-07-01/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
-
-  add_storage_account_network_role "${subscription}" "${resource_group}" "${container_app}" "${storage_account}"
-  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
-  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}"
+#  create_resource_group "${subscription}" "${resource_group}" "${location}"
+#  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
+##  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
+#  create_container_apps_environment "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}"
+#  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
+#  assign_roles_to_current_user "${subscription}" "${resource_group}"
+#  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
 #
-#  update_application_yml "${eventhubs_namespace}" "${eventhub}"
+#  add_storage_account_network_role "${subscription}" "${resource_group}" "${container_app}" "${storage_account}"
+#  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
+#  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}" "${mount_path}"
+#
+#  update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
+#  update_application_yml_about_log_directory "${mount_path}"
 #  deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}" "${container_app}"
-
+  restart_container_app "${subscription}" "${resource_group}" "${container_app}"
   end_time=$(date +%s)
   runtime=$((end_time-start_time))
   echo "main ended. Consumed time = ${runtime} seconds."
@@ -166,10 +168,11 @@ mount_file_share_to_container_apps() {
   resource_group=$2
   container_app=$3
   storage_name=$4
+  mount_path=$5
   rm azure_container_app_configuration*.yml || true
   get_container_app_configuration "${subscription}" "${resource_group}" "${container_app}" > azure_container_app_configuration.yml
   sed -e "s/^    volumes: null$/    volumes:\n    - name: ${storage_name}\n      storageName: ${storage_name}\n      storageType: AzureFile/g" \
-    -e "s/^      name: ${container_app}$/      name: ${container_app}\n      volumeMounts:\n      - volumeName: ${storage_name}\n        mountPath: \/var\/log\/system-a/g" \
+    -e "s/^      name: ${container_app}$/      name: ${container_app}\n      volumeMounts:\n      - volumeName: ${storage_name}\n        mountPath: ${mount_path}/g" \
     azure_container_app_configuration.yml \
     > azure_container_app_configuration_updated.yml
   az containerapp update \
@@ -193,7 +196,7 @@ get_container_app_configuration() {
     --output yaml
 }
 
-get_container_app_outbound_ip_addresses() {
+get_container_app_outbound_ip_addresses() { # Log should be avoided because its console output will be returned to outer function.
   subscription=$1
   resource_group=$2
   container_app=$3
@@ -259,14 +262,22 @@ upload_test_files_to_file_share() {
   echo "upload_test_files_to_file_share ended."
 }
 
-update_application_yml() {
-  echo "uto_pdate_application_yml started."
+update_application_yml_about_event_hub() {
   eventhubs_namespace=$1
   eventhub=$2
   file="../src/main/resources/application.yml"
-  sed -i "s/\${EVENT_HUBS_NAMESPACE}/${eventhubs_namespace}/" "${file}"
-  sed -i "s/\${EVENT_HUB_NAME}/${eventhub}/" "${file}"
-  echo "update_application_yml ended."
+  sed -i \
+    -e "s/\${EVENT_HUBS_NAMESPACE}/${eventhubs_namespace}/" \
+    -e "s/\${EVENT_HUB_NAME}/${eventhub}/" \
+    "${file}"
+}
+
+update_application_yml_about_log_directory() {
+  echo "update_application_yml_about_log_directory started."
+  mount_path=$1
+  file="../src/main/resources/application.yml"
+  sed -i -e "s/test-files/${mount_path}/" "${file}"
+  echo "update_application_yml_about_log_directory ended."
 }
 
 deploy_to_container_app_by_source() {
@@ -284,6 +295,32 @@ deploy_to_container_app_by_source() {
     --name "${container_app}" \
     --source ..
   echo "deploy_to_container_app_by_source ended."
+}
+
+get_container_app_revision() { # Log should be avoided because its console output will be returned to outer function.
+  subscription=$1
+  resource_group=$2
+  container_app=$3
+  az containerapp revision list \
+    --subscription "${subscription}" \
+    --resource-group "${resource_group}" \
+    --name "${container_app}" \
+    --query "[0].name" \
+  | sed -e "s/\"//g"
+}
+
+restart_container_app() {
+  echo "restart_container_app started."
+  subscription=$1
+  resource_group=$2
+  container_app=$3
+  revision="$(get_container_app_revision "${subscription}" "${resource_group}" "${container_app}")"
+  az containerapp revision restart \
+    --subscription "${subscription}" \
+    --resource-group "${resource_group}" \
+    --name "${container_app}" \
+    --revision "${revision}"
+  echo "restart_container_app started."
 }
 
 main
