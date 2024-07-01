@@ -8,7 +8,7 @@ main() {
   subscription="6c933f90-8115-4392-90f2-7077c9fa5dbd"
   location="centralus"
   container_apps_location="westus2" # This is used for handling Security Policy used in this subscription: "6c933f90-8115-4392-90f2-7077c9fa5dbd"
-  resource_name_prefix="rujche24070102"
+  resource_name_prefix="rujche24070104"
   mount_path="\/var\/log\/system-a" # Escape to be used in sed.
 
   resource_group="${resource_name_prefix}rg"
@@ -22,22 +22,24 @@ main() {
 
 #  prepare_azure_cli_environment
 
-#  create_resource_group "${subscription}" "${resource_group}" "${location}"
-#  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
-##  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
-#  create_container_apps_environment "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}"
-#  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
-#  assign_roles_to_current_user "${subscription}" "${resource_group}"
-#  assign_roles_to_container_app_managed_identity "${subscription}" "${resource_group}" "${container_app}"
+  create_resource_group "${subscription}" "${resource_group}" "${location}"
+  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
+  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
+  create_container_apps_environment "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}"
+  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
+
+  assign_roles_to_current_user "${subscription}" "${resource_group}"
+  assign_roles_to_container_app_managed_identity "${subscription}" "${resource_group}" "${container_app}"
   upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
-#
-#  add_storage_account_network_role "${subscription}" "${resource_group}" "${container_app}" "${storage_account}"
-#  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
-#  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}" "${mount_path}"
-#
-#  update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
-#  update_application_yml_about_log_directory "${mount_path}"
-#  deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}" "${container_app}"
+
+  add_storage_account_network_role "${subscription}" "${resource_group}" "${container_app}" "${storage_account}"
+  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
+  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}" "${mount_path}"
+
+  update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
+  update_application_yml_about_log_directory "${mount_path}"
+  deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}" "${container_app}"
+
 #  restart_container_app "${subscription}" "${resource_group}" "${container_app}"
 
   end_time=$(date +%s)
@@ -139,6 +141,8 @@ create_container_app() {
     --resource-group "${resource_group}" \
     --environment "${environment}" \
     --name "${container_app}" \
+    --min-replicas 0 \
+    --max-replicas 1\
     --system-assigned
   echo "create_container_app ended."
 }
