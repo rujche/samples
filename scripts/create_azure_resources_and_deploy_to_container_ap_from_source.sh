@@ -7,7 +7,7 @@ main() {
   start_time=$(date +%s)
   subscription="6c933f90-8115-4392-90f2-7077c9fa5dbd"
   location="centralus"
-  resource_name_prefix="rujche24063006"
+  resource_name_prefix="rujche24070101"
 
   resource_group="${resource_name_prefix}rg"
   storage_account="${resource_name_prefix}sa"
@@ -20,13 +20,13 @@ main() {
 
 #  prepare_azure_cli_environment
 
-#  create_resource_group "${subscription}" "${resource_group}" "${location}"
-#  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
-##  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
-#  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
-#  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
-#  assign_roles_to_current_user "${subscription}" "${resource_group}"
-#  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/2024-07-01/" "unprocessed/2024-07-01/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
+  create_resource_group "${subscription}" "${resource_group}" "${location}"
+  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
+#  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
+  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
+  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
+  assign_roles_to_current_user "${subscription}" "${resource_group}"
+  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/2024-07-01/" "unprocessed/2024-07-01/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
 
   link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
   mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}"
@@ -150,8 +150,8 @@ link_file_share_to_container_apps_environment() {
     --resource-group "${resource_group}" \
     --name "${environment}" \
     --azure-file-account-name "${storage_account}" \
-    --azure-file-share-name "${file_share}" \
     --azure-file-account-key "${storage_account_key}" \
+    --azure-file-share-name "${file_share}" \
     --storage-name "${storage_name}" \
     --access-mode ReadWrite \
     --output table
@@ -164,19 +164,19 @@ mount_file_share_to_container_apps() {
   resource_group=$2
   container_app=$3
   storage_name=$4
-  rm mount_file_share_to_container_apps_*.yml || true
-  get_container_app_configuration "${subscription}" "${resource_group}" "${container_app}" > mount_file_share_to_container_apps_1.yml
+  rm azure_container_app_configuration*.yml || true
+  get_container_app_configuration "${subscription}" "${resource_group}" "${container_app}" > azure_container_app_configuration.yml
   sed -e "s/^    volumes: null$/    volumes:\n    - name: ${storage_name}\n      storageName: ${storage_name}\n      storageType: AzureFile/g" \
     -e "s/^      name: ${container_app}$/      name: ${container_app}\n      volumeMounts:\n      - volumeName: ${storage_name}\n        mountPath: \/var\/log\/system-a/g" \
-    mount_file_share_to_container_apps_1.yml \
-    > mount_file_share_to_container_apps_2.yml
+    azure_container_app_configuration.yml \
+    > azure_container_app_configuration_updated.yml
   az containerapp update \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
     --name "${container_app}" \
-    --yaml mount_file_share_to_container_apps_2.yml \
+    --yaml azure_container_app_configuration_updated.yml \
     --output table
-  rm mount_file_share_to_container_apps_*.yml || true # Uncomment this line when debug
+  # rm azure_container_app_configuration*.yml || true # Uncomment this line when debug
   echo "mount_file_share_to_container_apps ended."
 }
 
