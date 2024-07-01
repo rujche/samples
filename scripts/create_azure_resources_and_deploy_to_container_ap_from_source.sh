@@ -7,7 +7,8 @@ main() {
   start_time=$(date +%s)
   subscription="6c933f90-8115-4392-90f2-7077c9fa5dbd"
   location="centralus"
-  resource_name_prefix="rujche24070101"
+  container_apps_location="westus2" # This is used for handling Security Policy used in this subscription: "6c933f90-8115-4392-90f2-7077c9fa5dbd"
+  resource_name_prefix="rujche24070102"
 
   resource_group="${resource_name_prefix}rg"
   storage_account="${resource_name_prefix}sa"
@@ -23,16 +24,17 @@ main() {
   create_resource_group "${subscription}" "${resource_group}" "${location}"
   create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
 #  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
-  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
+  create_container_apps_environment "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}"
   create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
   assign_roles_to_current_user "${subscription}" "${resource_group}"
   upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/2024-07-01/" "unprocessed/2024-07-01/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
 
+  add_storage_account_network_role "${subscription}" "${resource_group}" "${container_app}" "${storage_account}"
   link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
   mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}"
 #
 #  update_application_yml "${eventhubs_namespace}" "${eventhub}"
-#  deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
+#  deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}" "${container_app}"
 
   end_time=$(date +%s)
   runtime=$((end_time-start_time))
@@ -176,7 +178,7 @@ mount_file_share_to_container_apps() {
     --name "${container_app}" \
     --yaml azure_container_app_configuration_updated.yml \
     --output table
-  # rm azure_container_app_configuration*.yml || true # Uncomment this line when debug
+  rm azure_container_app_configuration*.yml || true # Uncomment this line when debug
   echo "mount_file_share_to_container_apps ended."
 }
 
@@ -189,6 +191,31 @@ get_container_app_configuration() {
     --resource-group "${resource_group}" \
     --name "${container_app}" \
     --output yaml
+}
+
+get_container_app_outbound_ip_addresses() {
+  subscription=$1
+  resource_group=$2
+  container_app=$3
+  az containerapp show \
+    --subscription "${subscription}" \
+    --resource-group "${resource_group}" \
+    --name "${container_app}" \
+    --query properties.outboundIpAddresses \
+  | sed -e ':a;N;$!ba;s/[][ \"\n]//g' -e "s/,/ /g"
+}
+
+add_storage_account_network_role() {
+  subscription=$1
+  resource_group=$2
+  container_app=$3
+  storage_account=$4
+  container_app_outbound_ip_address=$(get_container_app_outbound_ip_addresses "${subscription}" "${resource_group}" "${container_app}")
+  # shellcheck disable=SC2086  # container_app_outbound_ip_address will be resolved as multiple parameters
+  az storage account network-rule add \
+    --resource-group "${resource_group}" \
+    --account-name "${storage_account}" \
+    --ip-address ${container_app_outbound_ip_address}
 }
 
 assign_roles_to_current_user() {
