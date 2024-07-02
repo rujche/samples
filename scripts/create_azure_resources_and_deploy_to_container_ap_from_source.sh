@@ -22,19 +22,19 @@ main() {
 
 #  prepare_azure_cli_environment
 
-  create_resource_group "${subscription}" "${resource_group}" "${location}"
-  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
-  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
-  create_container_apps_environment "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}"
-  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
-
-  assign_roles_to_current_user "${subscription}" "${resource_group}"
-  assign_roles_to_container_app_managed_identity "${subscription}" "${resource_group}" "${container_app}"
-  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
-
-  add_storage_account_network_role "${subscription}" "${resource_group}" "${container_app}" "${storage_account}"
-  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
-  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}" "${mount_path}"
+#  create_resource_group "${subscription}" "${resource_group}" "${location}"
+#  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
+#  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
+#  create_container_apps_environment "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}"
+#  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
+#
+#  assign_roles_to_current_user "${subscription}" "${resource_group}"
+#  assign_roles_to_container_app_managed_identity "${subscription}" "${resource_group}" "${container_app}"
+#  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
+#
+#  add_storage_account_network_role "${subscription}" "${resource_group}" "${container_app}" "${storage_account}"
+#  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
+#  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}" "${mount_path}"
 
   restore_application_yml_and_test_files
   update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
@@ -299,7 +299,7 @@ upload_test_files_to_file_share() {
 
 restore_application_yml_and_test_files() {
     git checkout HEAD ../src/main/resources/application.yml
-    rm ../test-files
+    rm ../test-files/*
     git checkout HEAD ../test-files
 }
 
