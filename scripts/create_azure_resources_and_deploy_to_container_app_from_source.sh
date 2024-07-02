@@ -5,9 +5,10 @@ cd "$(dirname "$0")"
 main() {
   echo "main started."
   start_time=$(date +%s)
+  tenant="basictiertestoutlook.onmicrosoft.com"
   subscription="50328023-df85-46b6-96f5-c4566d7b063c"
   location="centralus"
-  resource_name_prefix="rujche24070209"
+  resource_name_prefix="rujche24070210"
   mount_path="\/var\/log\/system-a" # Escape to be used in sed.
 
   resource_group="${resource_name_prefix}rg"
@@ -19,7 +20,7 @@ main() {
   container_app="${resource_name_prefix}ca"
   storage_name="${resource_name_prefix}sn"
 
-#  prepare_azure_cli_environment
+  prepare_azure_cli_environment "${tenant}"
 
   create_resource_group "${subscription}" "${resource_group}" "${location}"
   create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
@@ -48,7 +49,8 @@ main() {
 
 prepare_azure_cli_environment() {
   echo "prepare_azure_cli_environment started."
-  az login
+  tenant=$1
+  az login --tenant "${tenant}"
   az upgrade
   az extension add --name containerapp --upgrade --allow-preview true
 #  az provider register --namespace Microsoft.App
@@ -207,25 +209,22 @@ assign_roles_to_current_user() {
   echo "assign_roles_to_current_user started."
   subscription=$1
   resource_group=$2
-  assignee="$(az ad signed-in-user show --query id -o tsv)"
+  assignee="$(az ad signed-in-user show --query userPrincipalName -o tsv)"
   az role assignment create \
     --subscription "${subscription}" \
     --assignee "${assignee}" \
     --role "Azure Event Hubs Data Owner" \
-    --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
-    || true # Ignore error: RoleAssignmentExists
+    --scope "subscriptions/${subscription}/resourceGroups/${resource_group}"
   az role assignment create \
     --subscription "${subscription}" \
     --assignee "${assignee}" \
     --role "Storage Blob Data Owner" \
-    --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
-    || true # Ignore error: RoleAssignmentExists
+    --scope "subscriptions/${subscription}/resourceGroups/${resource_group}"
   az role assignment create \
     --subscription "${subscription}" \
     --assignee "${assignee}" \
     --role "Storage File Data SMB Share Contributor" \
-    --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
-    || true # Ignore error: RoleAssignmentExists
+    --scope "subscriptions/${subscription}/resourceGroups/${resource_group}"
   echo "assign_roles_to_current_user ended."
 }
 
@@ -249,10 +248,10 @@ assign_roles_to_container_app_managed_identity() {
   assignee="$(get_container_app_principal_id "${subscription}" "${resource_group}" "${container_app}")"
   az role assignment create \
     --subscription "${subscription}" \
-    --assignee "${assignee}" \
+    --assignee-principal-type ServicePrincipal \
+    --assignee-object-id  "${assignee}" \
     --role "Azure Event Hubs Data Owner" \
-    --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
-    || true # Ignore error: RoleAssignmentExists
+    --scope "subscriptions/${subscription}/resourceGroups/${resource_group}"
   echo "assign_roles_to_container_app_managed_identity ended."
 }
 
