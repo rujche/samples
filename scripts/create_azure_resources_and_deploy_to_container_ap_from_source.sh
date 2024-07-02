@@ -8,7 +8,7 @@ main() {
   subscription="6c933f90-8115-4392-90f2-7077c9fa5dbd"
   location="centralus"
   container_apps_location="westus2" # This is used for handling Security Policy used in this subscription: "6c933f90-8115-4392-90f2-7077c9fa5dbd"
-  resource_name_prefix="rujche24070104"
+  resource_name_prefix="rujche24070201"
   mount_path="\/var\/log\/system-a" # Escape to be used in sed.
 
   resource_group="${resource_name_prefix}rg"
@@ -36,6 +36,7 @@ main() {
   link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
   mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}" "${mount_path}"
 
+  restore_application_yml_and_test_files
   update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
   update_application_yml_about_log_directory "${mount_path}"
   deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}" "${container_app}"
@@ -294,6 +295,12 @@ upload_test_files_to_file_share() {
       --source "${source}" \
       --destination-path "${destination_path}"
   echo "upload_test_files_to_file_share ended."
+}
+
+restore_application_yml_and_test_files() {
+    git checkout HEAD ../src/main/resources/application.yml
+    rm ../test/files
+    git checkout HEAD ../test-files
 }
 
 update_application_yml_about_event_hub() {
