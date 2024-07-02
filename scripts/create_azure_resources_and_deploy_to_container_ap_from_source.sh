@@ -299,7 +299,7 @@ upload_test_files_to_file_share() {
 
 restore_application_yml_and_test_files() {
     git checkout HEAD ../src/main/resources/application.yml
-    rm ../test-files/*
+    rm -rf ../test-files/*
     git checkout HEAD ../test-files
 }
 
