@@ -58,6 +58,7 @@ public class IntegrationConfiguration {
 
     private MessageHandler defaultMessageHandler() {
         DefaultMessageHandler handler = new DefaultMessageHandler(eventHubName, eventHubsTemplate);
+        handler.setSync(true);
         handler.setSendCallback(new OnFailureExitSystemCallback());
         return handler;
     }
