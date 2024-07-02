@@ -5,10 +5,9 @@ cd "$(dirname "$0")"
 main() {
   echo "main started."
   start_time=$(date +%s)
-  subscription="6c933f90-8115-4392-90f2-7077c9fa5dbd"
+  subscription="50328023-df85-46b6-96f5-c4566d7b063c"
   location="centralus"
-  container_apps_location="westus2" # This is used for handling Security Policy used in this subscription: "6c933f90-8115-4392-90f2-7077c9fa5dbd"
-  resource_name_prefix="rujche24070202"
+  resource_name_prefix="rujche24070209"
   mount_path="\/var\/log\/system-a" # Escape to be used in sed.
 
   resource_group="${resource_name_prefix}rg"
@@ -22,24 +21,23 @@ main() {
 
 #  prepare_azure_cli_environment
 
-#  create_resource_group "${subscription}" "${resource_group}" "${location}"
-#  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
-#  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
-#  create_container_apps_environment "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}"
-#  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
-#
-#  assign_roles_to_current_user "${subscription}" "${resource_group}"
-#  assign_roles_to_container_app_managed_identity "${subscription}" "${resource_group}" "${container_app}"
-#  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
-#
-#  add_storage_account_network_role "${subscription}" "${resource_group}" "${container_app}" "${storage_account}"
-#  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
-#  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}" "${mount_path}"
+  create_resource_group "${subscription}" "${resource_group}" "${location}"
+  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
+  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
+  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
+  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
+
+  assign_roles_to_current_user "${subscription}" "${resource_group}"
+  assign_roles_to_container_app_managed_identity "${subscription}" "${resource_group}" "${container_app}"
+  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
+
+  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
+  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}" "${mount_path}"
 
   restore_application_yml_and_test_files
   update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
   update_application_yml_about_log_directory "${mount_path}"
-  deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${container_apps_location}" "${environment}" "${container_app}"
+  deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
 
 #  restart_container_app "${subscription}" "${resource_group}" "${container_app}"
 
@@ -53,8 +51,8 @@ prepare_azure_cli_environment() {
   az login
   az upgrade
   az extension add --name containerapp --upgrade --allow-preview true
-  az provider register --namespace Microsoft.App
-  az provider register --namespace Microsoft.OperationalInsights
+#  az provider register --namespace Microsoft.App
+#  az provider register --namespace Microsoft.OperationalInsights
   echo "prepare_azure_cli_environment ended."
 }
 
@@ -64,6 +62,7 @@ create_resource_group() {
   resource_group_name=$2
   location=$3
   az group create \
+    --subscription "${subscription}" \
     --name "${resource_group_name}" \
     --location "${location}"
   echo "create_resource_group ended."
@@ -156,7 +155,7 @@ link_file_share_to_container_apps_environment() {
   storage_account=$4
   file_share=$5
   storage_name=$6
-  storage_account_key="$(az storage account keys list -n "${storage_account}" --query "[0].value" -o tsv)"
+  storage_account_key="$(az storage account keys list --subscription "${subscription}" --account-name "${storage_account}" --query "[0].value" -o tsv)"
   az containerapp env storage set \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
@@ -204,31 +203,6 @@ get_container_app_configuration() {
     --output yaml
 }
 
-get_container_app_outbound_ip_addresses() { # Log should be avoided because its console output will be returned to outer function.
-  subscription=$1
-  resource_group=$2
-  container_app=$3
-  az containerapp show \
-    --subscription "${subscription}" \
-    --resource-group "${resource_group}" \
-    --name "${container_app}" \
-    --query properties.outboundIpAddresses \
-  | sed -e ':a;N;$!ba;s/[][ \"\n]//g' -e "s/,/ /g"
-}
-
-add_storage_account_network_role() {
-  subscription=$1
-  resource_group=$2
-  container_app=$3
-  storage_account=$4
-  container_app_outbound_ip_address=$(get_container_app_outbound_ip_addresses "${subscription}" "${resource_group}" "${container_app}")
-  # shellcheck disable=SC2086  # container_app_outbound_ip_address will be resolved as multiple parameters
-  az storage account network-rule add \
-    --resource-group "${resource_group}" \
-    --account-name "${storage_account}" \
-    --ip-address ${container_app_outbound_ip_address}
-}
-
 assign_roles_to_current_user() {
   echo "assign_roles_to_current_user started."
   subscription=$1
@@ -241,14 +215,14 @@ assign_roles_to_current_user() {
     --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
     || true # Ignore error: RoleAssignmentExists
   az role assignment create \
-    --assignee "${assignee}" \
     --subscription "${subscription}" \
+    --assignee "${assignee}" \
     --role "Storage Blob Data Owner" \
     --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
     || true # Ignore error: RoleAssignmentExists
   az role assignment create \
-    --assignee "${assignee}" \
     --subscription "${subscription}" \
+    --assignee "${assignee}" \
     --role "Storage File Data SMB Share Contributor" \
     --scope "subscriptions/${subscription}/resourceGroups/${resource_group}" \
     || true # Ignore error: RoleAssignmentExists
@@ -289,11 +263,11 @@ upload_test_files_to_file_share() {
   source=$3
   destination_path=$4
   az storage file upload-batch \
-      --subscription "${subscription}" \
-      --account-name "${storage_account}" \
-      --destination  "${file_share}" \
-      --source "${source}" \
-      --destination-path "${destination_path}"
+    --subscription "${subscription}" \
+    --account-name "${storage_account}" \
+    --destination  "${file_share}" \
+    --source "${source}" \
+    --destination-path "${destination_path}"
   echo "upload_test_files_to_file_share ended."
 }
 
