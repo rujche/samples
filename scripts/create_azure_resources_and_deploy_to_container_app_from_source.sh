@@ -8,7 +8,7 @@ main() {
   tenant="basictiertestoutlook.onmicrosoft.com"
   subscription="50328023-df85-46b6-96f5-c4566d7b063c"
   location="centralus"
-  resource_name_prefix="rujche24070210"
+  resource_name_prefix="rujche24070212"
   mount_path="\/var\/log\/system-a" # Escape to be used in sed.
 
   resource_group="${resource_name_prefix}rg"
@@ -17,20 +17,20 @@ main() {
   eventhubs_namespace="${resource_name_prefix}ehn"
   eventhub="${resource_name_prefix}eh"
   environment="${resource_name_prefix}env"
-  container_app="${resource_name_prefix}ca"
   container_app_job="${resource_name_prefix}caj"
   storage_name="${resource_name_prefix}sn"
 
 #  prepare_azure_cli_environment "${tenant}"
 #
-  create_resource_group "${subscription}" "${resource_group}" "${location}"
-  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
-  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
-  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
-  create_container_app_job "${subscription}" "${resource_group}" "${environment}" "${container_app_job}"
-
-  assign_roles_to_current_user "${subscription}" "${resource_group}"
-  assign_roles_to_container_app_managed_identity "${subscription}" "${resource_group}" "${container_app}"
+#  create_resource_group "${subscription}" "${resource_group}" "${location}"
+#  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
+#  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
+#  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
+#  create_container_app_job "${subscription}" "${resource_group}" "${environment}" "${container_app_job}"
+#
+#  assign_roles_to_current_user "${subscription}" "${resource_group}"
+#  assign_system_assigned_managed_identity_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}"
+  assign_roles_to_container_app_job_managed_identity "${subscription}" "${resource_group}" "${container_app_job}"
   upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
 
   link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
@@ -39,9 +39,7 @@ main() {
   restore_application_yml_and_test_files
   update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
   update_application_yml_about_log_directory "${mount_path}"
-  # deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
-
-#  restart_container_app "${subscription}" "${resource_group}" "${container_app}"
+  # deploy_to_container_app_job_by_source "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app_job}"
 
   end_time=$(date +%s)
   runtime=$((end_time-start_time))
@@ -149,6 +147,16 @@ create_container_app_job() {
   echo "create_container_app_job ended."
 }
 
+assign_system_assigned_managed_identity_to_container_app_job() {
+  echo "assign_system_assigned_managed_identity_to_container_app_job started."
+  az containerapp job identity assign \
+    --subscription "${subscription}" \
+    --resource-group "${resource_group}" \
+    --name "${container_app_job}" \
+    --system-assigned
+  echo "assign_system_assigned_managed_identity_to_container_app_job ended."
+}
+
 link_file_share_to_container_apps_environment() {
   echo "link_file_share_to_container_apps_environment started."
   subscription=$1
@@ -190,7 +198,7 @@ mount_file_share_to_container_app_job() {
     --name "${container_app_job}" \
     --yaml get_container_app_job_configuration_updated.yml \
     --output table
-  rm get_container_app_job_configuration_updated*.yml || true # Uncomment this line when debug
+  rm get_container_app_job_configuration*.yml || true # Uncomment this line when debug
   echo "mount_file_share_to_container_app_job ended."
 }
 
@@ -228,31 +236,31 @@ assign_roles_to_current_user() {
   echo "assign_roles_to_current_user ended."
 }
 
-get_container_app_principal_id() { # Log should be avoided because its console output will be returned to outer function.
+get_container_app_job_principal_id() { # Log should be avoided because its console output will be returned to outer function.
   subscription=$1
   resource_group=$2
-  container_app=$3
-  az containerapp show \
+  container_app_job=$3
+  az containerapp job show \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
-    --name "${container_app}" \
+    --name "${container_app_job}" \
     --query "identity.principalId" \
   | sed -e "s/\"//g"
 }
 
-assign_roles_to_container_app_managed_identity() {
-  echo "assign_roles_to_container_app_managed_identity started."
+assign_roles_to_container_app_job_managed_identity() {
+  echo "assign_roles_to_container_app_job_managed_identity started."
   subscription=$1
   resource_group=$2
-  container_app=$3
-  assignee="$(get_container_app_principal_id "${subscription}" "${resource_group}" "${container_app}")"
+  container_app_job=$3
+  assignee="$(get_container_app_job_principal_id "${subscription}" "${resource_group}" "${container_app_job}")"
   az role assignment create \
     --subscription "${subscription}" \
     --assignee-principal-type ServicePrincipal \
     --assignee-object-id  "${assignee}" \
     --role "Azure Event Hubs Data Owner" \
     --scope "subscriptions/${subscription}/resourceGroups/${resource_group}"
-  echo "assign_roles_to_container_app_managed_identity ended."
+  echo "assign_roles_to_container_app_job_managed_identity ended."
 }
 
 upload_test_files_to_file_share() {
@@ -271,9 +279,11 @@ upload_test_files_to_file_share() {
 }
 
 restore_application_yml_and_test_files() {
+  echo "restore_application_yml_and_test_files started."
     git checkout HEAD ../src/main/resources/application.yml
     rm -rf ../test-files/*
     git checkout HEAD ../test-files
+  echo "restore_application_yml_and_test_files ended."
 }
 
 update_application_yml_about_event_hub() {
@@ -294,47 +304,21 @@ update_application_yml_about_log_directory() {
   echo "update_application_yml_about_log_directory ended."
 }
 
-deploy_to_container_app_by_source() {
-  echo "deploy_to_container_app_by_source started."
+deploy_to_container_app_job_by_source() {
+  echo "deploy_to_container_app_job_by_source started."
   subscription=$1
   resource_group=$2
   location=$3
   environment=$4
-  container_app=$5
+  container_app_job=$5
   az containerapp up \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
     --location "${location}" \
     --environment "${environment}" \
-    --name "${container_app}" \
+    --name "${container_app_job}" \
     --source ..
-  echo "deploy_to_container_app_by_source ended."
-}
-
-get_container_app_revision() { # Log should be avoided because its console output will be returned to outer function.
-  subscription=$1
-  resource_group=$2
-  container_app=$3
-  az containerapp revision list \
-    --subscription "${subscription}" \
-    --resource-group "${resource_group}" \
-    --name "${container_app}" \
-    --query "[0].name" \
-  | sed -e "s/\"//g"
-}
-
-restart_container_app() {
-  echo "restart_container_app started."
-  subscription=$1
-  resource_group=$2
-  container_app=$3
-  revision="$(get_container_app_revision "${subscription}" "${resource_group}" "${container_app}")"
-  az containerapp revision restart \
-    --subscription "${subscription}" \
-    --resource-group "${resource_group}" \
-    --name "${container_app}" \
-    --revision "${revision}"
-  echo "restart_container_app started."
+  echo "deploy_to_container_app_job_by_source ended."
 }
 
 main
