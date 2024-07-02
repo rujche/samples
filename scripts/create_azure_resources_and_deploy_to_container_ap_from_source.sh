@@ -8,7 +8,7 @@ main() {
   subscription="6c933f90-8115-4392-90f2-7077c9fa5dbd"
   location="centralus"
   container_apps_location="westus2" # This is used for handling Security Policy used in this subscription: "6c933f90-8115-4392-90f2-7077c9fa5dbd"
-  resource_name_prefix="rujche24070201"
+  resource_name_prefix="rujche24070202"
   mount_path="\/var\/log\/system-a" # Escape to be used in sed.
 
   resource_group="${resource_name_prefix}rg"
@@ -299,7 +299,7 @@ upload_test_files_to_file_share() {
 
 restore_application_yml_and_test_files() {
     git checkout HEAD ../src/main/resources/application.yml
-    rm ../test/files
+    rm ../test-files
     git checkout HEAD ../test-files
 }
 
