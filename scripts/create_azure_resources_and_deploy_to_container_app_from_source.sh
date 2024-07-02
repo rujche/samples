@@ -18,27 +18,28 @@ main() {
   eventhub="${resource_name_prefix}eh"
   environment="${resource_name_prefix}env"
   container_app="${resource_name_prefix}ca"
+  container_app_job="${resource_name_prefix}caj"
   storage_name="${resource_name_prefix}sn"
 
-  prepare_azure_cli_environment "${tenant}"
-
+#  prepare_azure_cli_environment "${tenant}"
+#
   create_resource_group "${subscription}" "${resource_group}" "${location}"
   create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
   create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
   create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
-  create_container_app "${subscription}" "${resource_group}" "${environment}" "${container_app}"
+  create_container_app_job "${subscription}" "${resource_group}" "${environment}" "${container_app_job}"
 
   assign_roles_to_current_user "${subscription}" "${resource_group}"
   assign_roles_to_container_app_managed_identity "${subscription}" "${resource_group}" "${container_app}"
   upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
 
   link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
-  mount_file_share_to_container_apps "${subscription}" "${resource_group}" "${container_app}" "${storage_name}" "${mount_path}"
+  mount_file_share_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}" "${storage_name}" "${mount_path}"
 
   restore_application_yml_and_test_files
   update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
   update_application_yml_about_log_directory "${mount_path}"
-  deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
+  # deploy_to_container_app_by_source "${subscription}" "${resource_group}" "${location}" "${environment}" "${container_app}"
 
 #  restart_container_app "${subscription}" "${resource_group}" "${container_app}"
 
@@ -132,21 +133,20 @@ create_container_apps_environment() {
   echo "create_container_apps_environment ended."
 }
 
-create_container_app() {
+create_container_app_job() {
+  echo "create_container_app_job started."
   subscription=$1
   resource_group=$2
   environment=$3
-  container_app=$4
-  echo "create_container_app started."
-  az containerapp create \
+  container_app_job=$4
+  az containerapp job create \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
     --environment "${environment}" \
-    --name "${container_app}" \
-    --min-replicas 0 \
-    --max-replicas 1\
-    --system-assigned
-  echo "create_container_app ended."
+    --trigger-type Manual \
+    --name "${container_app_job}" \
+    --max-executions 1
+  echo "create_container_app_job ended."
 }
 
 link_file_share_to_container_apps_environment() {
@@ -171,37 +171,37 @@ link_file_share_to_container_apps_environment() {
   echo "link_file_share_to_container_apps_environment ended."
 }
 
-mount_file_share_to_container_apps() {
-  echo "mount_file_share_to_container_apps started."
+mount_file_share_to_container_app_job() {
+  echo "mount_file_share_to_container_app_job started."
   subscription=$1
   resource_group=$2
-  container_app=$3
+  container_app_job=$3
   storage_name=$4
   mount_path=$5
-  rm azure_container_app_configuration*.yml || true
-  get_container_app_configuration "${subscription}" "${resource_group}" "${container_app}" > azure_container_app_configuration.yml
+  rm get_container_app_job_configuration_updated*.yml || true
+  get_container_app_job_configuration "${subscription}" "${resource_group}" "${container_app_job}" > get_container_app_job_configuration.yml
   sed -e "s/^    volumes: null$/    volumes:\n    - name: ${storage_name}\n      storageName: ${storage_name}\n      storageType: AzureFile/g" \
-    -e "s/^      name: ${container_app}$/      name: ${container_app}\n      volumeMounts:\n      - volumeName: ${storage_name}\n        mountPath: ${mount_path}/g" \
-    azure_container_app_configuration.yml \
-    > azure_container_app_configuration_updated.yml
-  az containerapp update \
+    -e "s/^      name: ${container_app_job}$/      name: ${container_app_job}\n      volumeMounts:\n      - volumeName: ${storage_name}\n        mountPath: ${mount_path}/g" \
+    get_container_app_job_configuration.yml \
+    > get_container_app_job_configuration_updated.yml
+  az containerapp job update \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
-    --name "${container_app}" \
-    --yaml azure_container_app_configuration_updated.yml \
+    --name "${container_app_job}" \
+    --yaml get_container_app_job_configuration_updated.yml \
     --output table
-  rm azure_container_app_configuration*.yml || true # Uncomment this line when debug
-  echo "mount_file_share_to_container_apps ended."
+  rm get_container_app_job_configuration_updated*.yml || true # Uncomment this line when debug
+  echo "mount_file_share_to_container_app_job ended."
 }
 
-get_container_app_configuration() {
+get_container_app_job_configuration() {
   subscription=$1
   resource_group=$2
-  container_app=$3
-  az containerapp show \
+  container_app_job=$3
+  az containerapp job show \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
-    --name "${container_app}" \
+    --name "${container_app_job}" \
     --output yaml
 }
 
