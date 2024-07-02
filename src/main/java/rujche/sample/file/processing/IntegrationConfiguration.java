@@ -27,15 +27,18 @@ public class IntegrationConfiguration {
     private final String processedLogsDirectory;
     private final String eventHubName;
     private final EventHubsTemplate eventHubsTemplate;
+    ExitSystemReceiveMessageAdvice advice;
 
     public IntegrationConfiguration(@Value("${logs-directory}") String logsDirectory,
                                     @Value("${processed-logs-directory}") String processedLogsDirectory,
                                     @Value("${spring.cloud.azure.eventhubs.event-hub-name}") String eventHubName,
-                                    EventHubsTemplate eventHubsTemplate) {
+                                    EventHubsTemplate eventHubsTemplate,
+                                    ExitSystemReceiveMessageAdvice advice) {
         this.logsDirectory = toAbsolutePath(logsDirectory);
         this.processedLogsDirectory = toAbsolutePath(processedLogsDirectory);
         this.eventHubName = eventHubName;
         this.eventHubsTemplate = eventHubsTemplate;
+        this.advice = advice;
         LOGGER.info("logsDirectory = {}, processedLogsDirectory = {}, eventHubName = {}.", logsDirectory, processedLogsDirectory, eventHubName);
     }
 
@@ -44,7 +47,7 @@ public class IntegrationConfiguration {
     public IntegrationFlow fileReadingFlow() {
         return IntegrationFlow
                 .from(Files.inboundAdapter(new File(logsDirectory)).recursive(true).useWatchService(true),
-                        e -> e.poller(Pollers.fixedDelay(0).advice(new ExitSystemReceiveMessageAdvice())))
+                        e -> e.poller(Pollers.fixedDelay(0).advice(advice)))
                 .filter(FileMessageUtil::isTargetFile)
                 .transform(Files.toStringTransformer())
                 .transform(Message.class, message -> FileMessageUtil.toTxtLineThenMoveFile((Message<String>) message, logsDirectory, processedLogsDirectory)) // TODO: Improvements: 1. Move file after send message to event hub. 2. Move file that isTargetFile() == false.

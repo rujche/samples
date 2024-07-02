@@ -2,14 +2,20 @@ package rujche.sample.file.processing;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.integration.aop.ReceiveMessageAdvice;
 import org.springframework.messaging.Message;
+import org.springframework.stereotype.Component;
 
-import static rujche.sample.file.processing.util.FileMessageUtil.getAbsolutePath;
-import static rujche.sample.file.processing.util.FileMessageUtil.getFileSize;
 
-public class ExitSystemReceiveMessageAdvice implements ReceiveMessageAdvice {
+@Component
+public class ExitSystemReceiveMessageAdvice implements ReceiveMessageAdvice, ApplicationContextAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExitSystemReceiveMessageAdvice.class);
+
+    private ApplicationContext context;
     private boolean lastResultIsNull = true;
 
     @Override
@@ -18,12 +24,16 @@ public class ExitSystemReceiveMessageAdvice implements ReceiveMessageAdvice {
         if (resultIsNull != lastResultIsNull) {
             LOGGER.info("Message receiving status changed, received message is {}.", resultIsNull ? "null" : "not null");
             lastResultIsNull = resultIsNull;
-            // System.exit(0);
-        }
-        if (!resultIsNull) {
-            LOGGER.info("Start to handle file. file = {}, fileSize = {}. ",
-                    getAbsolutePath(result), getFileSize(result));
+            if (resultIsNull) {
+                LOGGER.info("Closing context and exiting application.");
+                ((ConfigurableApplicationContext) context).close();
+            }
         }
         return result;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext context) throws BeansException {
+        this.context = context;
     }
 }
