@@ -8,7 +8,7 @@ main() {
   tenant="basictiertestoutlook.onmicrosoft.com"
   subscription="50328023-df85-46b6-96f5-c4566d7b063c"
   location="centralus"
-  resource_name_prefix="rujche24070212"
+  resource_name_prefix="rujche24070213"
   mount_path="\/var\/log\/system-a" # Escape to be used in sed.
 
   resource_group="${resource_name_prefix}rg"
@@ -21,15 +21,15 @@ main() {
   storage_name="${resource_name_prefix}sn"
 
 #  prepare_azure_cli_environment "${tenant}"
-#
-#  create_resource_group "${subscription}" "${resource_group}" "${location}"
-#  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
-#  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
-#  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
-#  create_container_app_job "${subscription}" "${resource_group}" "${environment}" "${container_app_job}"
-#
-#  assign_roles_to_current_user "${subscription}" "${resource_group}"
-#  assign_system_assigned_managed_identity_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}"
+
+  create_resource_group "${subscription}" "${resource_group}" "${location}"
+  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
+  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
+  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
+  create_container_app_job "${subscription}" "${resource_group}" "${environment}" "${container_app_job}"
+
+  assign_roles_to_current_user "${subscription}" "${resource_group}"
+  assign_system_assigned_managed_identity_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}"
   assign_roles_to_container_app_job_managed_identity "${subscription}" "${resource_group}" "${container_app_job}"
   upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
 
