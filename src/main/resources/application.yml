@@ -5,6 +5,7 @@ logging:
     root: INFO
     com:
       azure:
+        spring: DEBUG
         messaging:
           eventhubs: WARN
         core:
