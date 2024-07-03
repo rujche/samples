@@ -8,7 +8,7 @@ main() {
   tenant="basictiertestoutlook.onmicrosoft.com"
   subscription="50328023-df85-46b6-96f5-c4566d7b063c"
   location="centralus"
-  resource_name_prefix="rujche24070214"
+  resource_name_prefix="rujche24070215"
   mount_path="\/var\/log\/system-a" # Escape to be used in sed.
 
   resource_group="${resource_name_prefix}rg"
@@ -16,36 +16,38 @@ main() {
   file_share="${resource_name_prefix}fs"
   eventhubs_namespace="${resource_name_prefix}ehn"
   eventhub="${resource_name_prefix}eh"
-  environment="${resource_name_prefix}env"
+  storage_name="${resource_name_prefix}sn"
+  container_apps_environment="${resource_name_prefix}env"
   container_registry="${resource_name_prefix}cr"
   container_image="${resource_name_prefix}ci"
   container_app_job="${resource_name_prefix}caj"
-  storage_name="${resource_name_prefix}sn"
 
 #  prepare_azure_cli_environment "${tenant}"
 
-#  create_resource_group "${subscription}" "${resource_group}" "${location}"
-#  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
-#  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
-#  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${environment}"
+  create_resource_group "${subscription}" "${resource_group}" "${location}"
+  create_storage_account_and_file_share "${subscription}" "${resource_group}" "${location}" "${storage_account}" "${file_share}"
+  create_eventhub "${subscription}" "${resource_group}" "${location}" "${eventhubs_namespace}" "${eventhub}"
 
-#  assign_roles_to_current_user "${subscription}" "${resource_group}"
-#  assign_system_assigned_managed_identity_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}"
-#  assign_roles_to_container_app_job_managed_identity "${subscription}" "${resource_group}" "${container_app_job}"
-#  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
+  assign_roles_to_current_user "${subscription}" "${resource_group}"
+  # Upload test files after assign_roles_to_current_user.
+  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
 
-#  restore_application_yml_and_test_files
-#  update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
-#  update_application_yml_about_log_directory "${mount_path}"
+  restore_application_yml_and_test_files
+  update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
+  update_application_yml_about_log_directory "${mount_path}"
 
-#  create_container_registry  "${subscription}" "${resource_group}" "${location}" "${container_registry}"
-#  # Build container image after application.yml updated
-#  build_container_image "${container_registry}" "${container_image}"
-#  # Create container app job after container image is ready
-#  create_container_app_job "${subscription}" "${resource_group}" "${environment}" "${container_app_job}" "${container_registry}" "${container_image}"
+  create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${container_apps_environment}"
+  create_container_registry  "${subscription}" "${resource_group}" "${location}" "${container_registry}"
+  # Build container image after application.yml updated.
+  build_container_image "${container_registry}" "${container_image}"
+  # Create container app job after container image is ready.
+  create_container_app_job "${subscription}" "${resource_group}" "${container_apps_environment}" "${container_app_job}" "${container_registry}" "${container_image}"
+  # Assign identity after container app job created.
+  assign_system_assigned_managed_identity_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}"
+  assign_roles_to_container_app_job_managed_identity "${subscription}" "${resource_group}" "${container_app_job}"
 
-#  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
-#  mount_file_share_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}" "${storage_name}" "${mount_path}"
+  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${container_apps_environment}" "${storage_account}" "${file_share}" "${storage_name}"
+  mount_file_share_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}" "${storage_name}" "${mount_path}"
 
   end_time=$(date +%s)
   runtime=$((end_time-start_time))
@@ -127,12 +129,12 @@ create_container_apps_environment() {
   subscription=$1
   resource_group=$2
   location=$3
-  environment=$4
+  container_apps_environment=$4
   az containerapp env create \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
     --location "${location}" \
-    --name "${environment}" \
+    --name "${container_apps_environment}" \
     --query "properties.provisioningState"
   echo "create_container_apps_environment ended."
 }
@@ -166,14 +168,14 @@ create_container_app_job() {
   echo "create_container_app_job started."
   subscription=$1
   resource_group=$2
-  environment=$3
+  container_apps_environment=$3
   container_app_job=$4
   container_registry=$5
   container_image=$6
   az containerapp job create \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
-    --environment "${environment}" \
+    --environment "${container_apps_environment}" \
     --trigger-type Manual \
     --name "${container_app_job}" \
     --registry-server "${container_registry}.azurecr.io"\
@@ -197,7 +199,7 @@ link_file_share_to_container_apps_environment() {
   echo "link_file_share_to_container_apps_environment started."
   subscription=$1
   resource_group=$2
-  environment=$3
+  container_apps_environment=$3
   storage_account=$4
   file_share=$5
   storage_name=$6
@@ -205,7 +207,7 @@ link_file_share_to_container_apps_environment() {
   az containerapp env storage set \
     --subscription "${subscription}" \
     --resource-group "${resource_group}" \
-    --name "${environment}" \
+    --name "${container_apps_environment}" \
     --azure-file-account-name "${storage_account}" \
     --azure-file-account-key "${storage_account_key}" \
     --azure-file-share-name "${file_share}" \
