@@ -8,6 +8,7 @@ main() {
 
   source ./variables.sh
 
+#  Prepare Azure CLI environment only needed for the first time.
 #  prepare_azure_cli_environment "${tenant}"
 
   create_resource_group "${subscription}" "${resource_group}" "${location}"
@@ -23,17 +24,16 @@ main() {
   ./build_container_image.sh
   # Create container app job after container image is ready.
   create_container_app_job "${subscription}" "${resource_group}" "${container_apps_environment}" "${container_app_job}" "${container_registry}" "${container_image}"
-  # Assign identity after container app job created.
-  assign_system_assigned_managed_identity_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}"
+  # Assign role after container app job created.
   assign_roles_to_container_app_job_managed_identity "${subscription}" "${resource_group}" "${container_app_job}"
 
-  # Configure mount after container app created
+  # Mount after container app job created.
   link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${container_apps_environment}" "${storage_account}" "${file_share}" "${storage_name}"
   mount_file_share_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}" "${storage_name}" "${mount_path}"
 
   end_time=$(date +%s)
-  runtime=$((end_time-start_time))
-  echo "main ended. Consumed time = ${runtime} seconds."
+  consumed_time=$((end_time-start_time))
+  echo "main ended. Consumed time = ${consumed_time} seconds."
 }
 
 prepare_azure_cli_environment() {
@@ -156,16 +156,6 @@ create_container_app_job() {
     --max-executions 1 \
     --registry-identity "system"
   echo "create_container_app_job ended."
-}
-
-assign_system_assigned_managed_identity_to_container_app_job() {
-  echo "assign_system_assigned_managed_identity_to_container_app_job started."
-  az containerapp job identity assign \
-    --subscription "${subscription}" \
-    --resource-group "${resource_group}" \
-    --name "${container_app_job}" \
-    --system-assigned
-  echo "assign_system_assigned_managed_identity_to_container_app_job ended."
 }
 
 link_file_share_to_container_apps_environment() {
