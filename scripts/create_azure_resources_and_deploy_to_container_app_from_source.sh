@@ -33,19 +33,19 @@ main() {
 #  assign_system_assigned_managed_identity_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}"
 #  assign_roles_to_container_app_job_managed_identity "${subscription}" "${resource_group}" "${container_app_job}"
 #  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
-#
-#  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
-#  mount_file_share_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}" "${storage_name}" "${mount_path}"
-#
+
 #  restore_application_yml_and_test_files
 #  update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
 #  update_application_yml_about_log_directory "${mount_path}"
 
-  create_container_registry  "${subscription}" "${resource_group}" "${location}" "${container_registry}"
-  # Build container image after application.yml updated
-  build_container_image "${container_registry}" "${container_image}"
-  # Create container app job after container image is ready
-  create_container_app_job "${subscription}" "${resource_group}" "${environment}" "${container_app_job}" "${container_registry}" "${container_image}"
+#  create_container_registry  "${subscription}" "${resource_group}" "${location}" "${container_registry}"
+#  # Build container image after application.yml updated
+#  build_container_image "${container_registry}" "${container_image}"
+#  # Create container app job after container image is ready
+#  create_container_app_job "${subscription}" "${resource_group}" "${environment}" "${container_app_job}" "${container_registry}" "${container_image}"
+
+#  link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${environment}" "${storage_account}" "${file_share}" "${storage_name}"
+#  mount_file_share_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}" "${storage_name}" "${mount_path}"
 
   end_time=$(date +%s)
   runtime=$((end_time-start_time))
@@ -177,7 +177,7 @@ create_container_app_job() {
     --trigger-type Manual \
     --name "${container_app_job}" \
     --registry-server "${container_registry}.azurecr.io"\
-    --image "${container_registry}.azurecr.io/${container_image}"\
+    --image "${container_registry}.azurecr.io/${container_image}:latest"\
     --max-executions 1 \
     --registry-identity "system"
   echo "create_container_app_job ended."
