@@ -5,22 +5,8 @@ cd "$(dirname "$0")"
 main() {
   echo "main started."
   start_time=$(date +%s)
-  tenant="basictiertestoutlook.onmicrosoft.com"
-  subscription="50328023-df85-46b6-96f5-c4566d7b063c"
-  location="centralus"
-  resource_name_prefix="rujche24070215"
-  mount_path="\/var\/log\/system-a" # Escape to be used in sed.
 
-  resource_group="${resource_name_prefix}rg"
-  storage_account="${resource_name_prefix}sa"
-  file_share="${resource_name_prefix}fs"
-  eventhubs_namespace="${resource_name_prefix}ehn"
-  eventhub="${resource_name_prefix}eh"
-  storage_name="${resource_name_prefix}sn"
-  container_apps_environment="${resource_name_prefix}env"
-  container_registry="${resource_name_prefix}cr"
-  container_image="${resource_name_prefix}ci"
-  container_app_job="${resource_name_prefix}caj"
+  source ./variables.sh
 
 #  prepare_azure_cli_environment "${tenant}"
 
@@ -30,22 +16,18 @@ main() {
 
   assign_roles_to_current_user "${subscription}" "${resource_group}"
   # Upload test files after assign_roles_to_current_user.
-  upload_test_files_to_file_share "${storage_account}" "${file_share}" "../test-files/unprocessed/" "unprocessed/" # Note: Using "/unprocessed/2024-07-01/" as destination will upload failed.
-
-  restore_application_yml_and_test_files
-  update_application_yml_about_event_hub "${eventhubs_namespace}" "${eventhub}"
-  update_application_yml_about_log_directory "${mount_path}"
+  ./upload_test_files_to_file_share.sh
 
   create_container_apps_environment "${subscription}" "${resource_group}" "${location}" "${container_apps_environment}"
   create_container_registry  "${subscription}" "${resource_group}" "${location}" "${container_registry}"
-  # Build container image after application.yml updated.
-  build_container_image "${container_registry}" "${container_image}"
+  ./build_container_image.sh
   # Create container app job after container image is ready.
   create_container_app_job "${subscription}" "${resource_group}" "${container_apps_environment}" "${container_app_job}" "${container_registry}" "${container_image}"
   # Assign identity after container app job created.
   assign_system_assigned_managed_identity_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}"
   assign_roles_to_container_app_job_managed_identity "${subscription}" "${resource_group}" "${container_app_job}"
 
+  # Configure mount after container app created
   link_file_share_to_container_apps_environment "${subscription}" "${resource_group}" "${container_apps_environment}" "${storage_account}" "${file_share}" "${storage_name}"
   mount_file_share_to_container_app_job "${subscription}" "${resource_group}" "${container_app_job}" "${storage_name}" "${mount_path}"
 
@@ -153,15 +135,6 @@ create_container_registry() {
     --sku Standard \
     --admin-enabled true
   echo "create_container_registry ended."
-}
-
-build_container_image() {
-  container_registry=$1
-  container_image=$2
-  az acr build \
-    --registry "${container_registry}" \
-    --image "${container_image}" \
-    ..
 }
 
 create_container_app_job() {
