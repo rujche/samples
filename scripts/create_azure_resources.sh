@@ -104,6 +104,7 @@ create_eventhub() {
     --resource-group "${resource_group}" \
     --namespace-name "${eventhubs_namespace}" \
     --name "${eventhub}"
+  echo "create_eventhub ended."
 }
 
 create_container_apps_environment() {
