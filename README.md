@@ -1,23 +1,25 @@
-# DevOps Experience of Azure Container App Job
+# DevOps Experience of [Azure Container App Job](https://learn.microsoft.com/en-us/azure/container-apps/jobs?tabs=azure-cli)
 
 ## 1. Purpose
 
-This sample's purpose is demonstrating the devops experience of Azure Container App Job.
+This sample's purpose is demonstrating the devops experience of developing and deploying application in Azure Container App job.
 
 ## 2. System diagram
 
-> ![system-diagram](./pictures/system-diagram.png)
+1. System diagram.
 
-In this diagram:
-1. The application run in [Azure Container App Job](https://learn.microsoft.com/en-us/azure/container-apps/jobs?tabs=azure-cli).
-2. The application's main task is to handle text files.
-3. The text files are stored in [Azure File Share](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction).
-4. After files been handled, they will be moved into another folder.
-5. For each line of text file, if it's valid, it will be converted and send to [Azure Event Hub](https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-about).
+   > ![system-diagram](./pictures/system-diagram.png)
+
+2. System diagram explanation.
+   1. The application designed to be run in [Azure Container App Job].
+   2. The application's main task is to handle text files.
+   3. The text files are stored in [Azure File Share](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction).
+   4. After files been handled, they will be moved into another folder.
+   5. Each valid line of text file will be handled and send to [Azure Event Hub](https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-about).
 
 ## 3. How to run this application
 
-### 3.1. Prepare necessary Azure resources.
+### 3.1. Prepare necessary Azure resources
 
 1. Create all necessary Azure resources by this:
 
@@ -45,7 +47,7 @@ In this diagram:
     ```
 2. Click `Run now` in [Azure Portal](https://portal.azure.com/) to trigger job execution.
 
-> ![run-now](./pictures/run-now.png)
+   > ![run-now](./pictures/run-now.png)
 
 ## 4. Support
 
