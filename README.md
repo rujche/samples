@@ -35,8 +35,7 @@ and [Azure Event Hub](https://learn.microsoft.com/en-us/azure/event-hubs/event-h
    #  Prepare Azure CLI environment only needed for the first time.
    #  prepare_azure_cli_environment "${tenant}"
    ```
-3.Create Azure resources.
-
+3. Create Azure resources.
    ```shell
    ./scripts/create_azure_resources.sh
    ```
