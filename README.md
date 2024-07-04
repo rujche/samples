@@ -35,6 +35,7 @@ and [Azure Event Hub](https://learn.microsoft.com/en-us/azure/event-hubs/event-h
    ```shell
    ./scripts/create_azure_resources.sh
    ```
+   It takes about 10 minutes.
 
 ### 3.2. Run this application in localhost
 
