@@ -10,13 +10,6 @@ logging:
             core:
               handler:
                 DefaultMessageHandler: DEBUG
-#        messaging:
-#          eventhubs: WARN
-#        core:
-#          amqp: WARN
-#    org:
-#      springframework:
-#        integration: WARN
 spring:
   cloud:
     azure:
