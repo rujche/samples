@@ -2,8 +2,8 @@
 
 ## 1. Purpose
 
-This sample's purpose is demonstrating the devops experience of developing and deploying application in Azure Container 
-App job. And the application will communicate with other Azure services like [Azure File Share](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction) 
+This sample's purpose is demonstrating the experience of developing and deploying application in Azure Container App job. 
+And the application will communicate with other Azure services like [Azure File Share](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction) 
 and [Azure Event Hub](https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-about).
 
 ## 2. System diagram
@@ -13,17 +13,17 @@ and [Azure Event Hub](https://learn.microsoft.com/en-us/azure/event-hubs/event-h
    > ![system-diagram](./pictures/system-diagram.png)
 
 2. System diagram explanation.
-   1. The application designed to be run in [Azure Container App Job].
+   1. The application designed to be run in Container App Job.
    2. The application's main task is to handle text files.
-   3. The text files are stored in Azure File Share.
-   4. After files been handled, they will be moved into another folder.
-   5. Each valid line of text file will be handled and send to Azure Event Hub.
+   3. The text files are stored in configured folder in File Share.
+   4. After files been handled, they will be moved into another configured folder in the same File Share.
+   5. Each valid line of text file will be handled and send to Event Hub.
 
 ## 3. How to run this application
 
-### 3.1. Prepare necessary Azure resources
+### 3.1. Prepare Azure resources
 
-1. Create all necessary Azure resources by this:
+1. Create Azure resources.
 
    ```shell
    ./scripts/create_azure_resources.sh
