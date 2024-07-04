@@ -23,7 +23,14 @@ and [Azure Event Hub](https://learn.microsoft.com/en-us/azure/event-hubs/event-h
 
 ### 3.1. Prepare Azure resources
 
-1. Create Azure resources.
+1. Update [variables.sh](./scripts/variables.sh) according to your requirement. These variable should be updated:
+   ```shell
+   export tenant="example.onmicrosoft.com"
+   export subscription="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+   export location="centralus"
+   export resource_name_prefix="example"
+   ```
+2. Create Azure resources.
 
    ```shell
    ./scripts/create_azure_resources.sh
