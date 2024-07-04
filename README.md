@@ -30,7 +30,12 @@ and [Azure Event Hub](https://learn.microsoft.com/en-us/azure/event-hubs/event-h
    export location="centralus"
    export resource_name_prefix="example"
    ```
-2. Create Azure resources.
+2. Enable `prepare_azure_cli_environment` for the first-time run.
+   ```shell
+   #  Prepare Azure CLI environment only needed for the first time.
+   #  prepare_azure_cli_environment "${tenant}"
+   ```
+3.Create Azure resources.
 
    ```shell
    ./scripts/create_azure_resources.sh
