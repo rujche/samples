@@ -11,15 +11,15 @@ This sample's purpose is demonstrating the devops experience of Azure Container 
 In this diagram:
 1. The application run in [Azure Container App Job](https://learn.microsoft.com/en-us/azure/container-apps/jobs?tabs=azure-cli).
 2. The application's main task is to handle text files.
-3. The text files needed to be handled are stored in [Azure File Share](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction).
-4. After files been handled, they fill be moved into another folder.
+3. The text files are stored in [Azure File Share](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction).
+4. After files been handled, they will be moved into another folder.
 5. For each line of text file, if it's valid, it will be converted and send to [Azure Event Hub](https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-about).
 
 ## 3. How to run this application
 
 ### 3.1. Prepare necessary Azure resources.
 
-Create all necessary Azure resources by this:
+1. Create all necessary Azure resources by this:
 
    ```shell
    ./scripts/create_azure_resources.sh
@@ -27,11 +27,11 @@ Create all necessary Azure resources by this:
 
 ### 3.2. Run this application in localhost
 
-1. Prepare test files by this:
+1. Prepare test files.
     ```shell
     ./scripts/restore_test_files.sh
     ```
-2. Update `application.yml` by this:
+2. Update `application.yml`.
     ```shell
     ./scripts/update_application_yml_for_local_development.sh
     ```
@@ -43,7 +43,7 @@ Create all necessary Azure resources by this:
     ```shell
     ./scripts/build_docker_image.sh
     ```
-2. Just click `Run now` to trigger job execution.
+2. Click `Run now` in [Azure Portal](https://portal.azure.com/) to trigger job execution.
 
 > ![run-now](./pictures/run-now.png)
 
