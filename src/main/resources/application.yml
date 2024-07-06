@@ -17,8 +17,12 @@ spring:
         avro:
           reader: true
     producer:
+      # Use KafkaAvroDeserializer and KafkaAvroSerializer in azure-schemaregistry-kafka-avro after this PR merged:
+      # https://github.com/Azure/azure-schema-registry-for-kafka/pull/57
       value-serializer: rujche.sample.SampleKafkaAvroSerializer
     consumer:
       group-id: sample-message-group
+      # Use KafkaAvroDeserializer and KafkaAvroSerializer in azure-schemaregistry-kafka-avro after this PR merged:
+      # https://github.com/Azure/azure-schema-registry-for-kafka/pull/57
       value-deserializer: rujche.sample.SampleKafkaAvroDeserializer
 

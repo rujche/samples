@@ -6,7 +6,6 @@ import com.azure.data.schemaregistry.SchemaRegistryClientBuilder;
 import com.azure.data.schemaregistry.apacheavro.SchemaRegistryApacheAvroSerializer;
 import com.azure.data.schemaregistry.apacheavro.SchemaRegistryApacheAvroSerializerBuilder;
 import com.azure.identity.DefaultAzureCredentialBuilder;
-import com.microsoft.azure.schemaregistry.kafka.avro.KafkaAvroSerializerConfig;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serializer;
@@ -16,6 +15,8 @@ import java.util.Map;
 /**
  * Just copied from com.microsoft.azure.schemaregistry.kafka.avro.KafkaAvroSerializer
  * Changed the logic of DefaultAzureCredential.
+ * Use KafkaAvroDeserializer and KafkaAvroSerializer in azure-schemaregistry-kafka-avro after this PR merged:
+ *  <a href="https://github.com/Azure/azure-schema-registry-for-kafka/pull/57">...</a>
  */
 public class SampleKafkaAvroSerializer<T> implements Serializer<T> {
     private SchemaRegistryApacheAvroSerializer serializer;
@@ -34,7 +35,6 @@ public class SampleKafkaAvroSerializer<T> implements Serializer<T> {
      * @param isKey Indicates if serializing record key or value.  Required by Kafka serializer interface,
      *              no specific functionality implemented for key use.
      *
-     * @see KafkaAvroSerializerConfig Serializer will use configs found in KafkaAvroSerializerConfig.
      */
     @Override
     public void configure(Map<String, ?> props, boolean isKey) {

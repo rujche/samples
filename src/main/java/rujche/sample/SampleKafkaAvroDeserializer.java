@@ -18,7 +18,9 @@ import java.util.Map;
 
 /**
  * Copied from com.microsoft.azure.schemaregistry.kafka.avro.KafkaAvroDeserializer.
- * Change credential to DefaultAzureCredential
+ * Change credential to DefaultAzureCredential.
+ * Use KafkaAvroDeserializer and KafkaAvroSerializer in azure-schemaregistry-kafka-avro after this PR merged:
+ *  *  <a href="https://github.com/Azure/azure-schema-registry-for-kafka/pull/57">...</a>
  */
 public class SampleKafkaAvroDeserializer<T extends IndexedRecord> implements Deserializer<T> {
     private SchemaRegistryApacheAvroSerializer serializer;
