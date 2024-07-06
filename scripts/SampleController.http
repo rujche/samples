@@ -1,0 +1,2 @@
+### Post message
+POST http://localhost:8080/message/test-message

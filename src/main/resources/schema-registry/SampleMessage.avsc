@@ -1,0 +1,15 @@
+{
+  "namespace": "rujche.sample.avsc.generated",
+  "type": "record",
+  "name": "SampleMessage",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "description",
+      "type": "string"
+    }
+  ]
+}
