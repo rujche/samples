@@ -6,6 +6,19 @@ eventhubs:
 spring:
   application:
     name: sample
+  cloud:
+    function:
+      definition: consumer;supplier
+    stream:
+      bindings:
+        consumer-in-0:
+          destination: ${eventhubs.eventhub}
+#          consumer:
+#            use-native-decoding: true
+        supplier-out-0:
+          destination: ${eventhubs.eventhub}
+          producer:
+            use-native-encoding: true
   kafka:
     bootstrap-servers: ${eventhubs.namespace}.servicebus.windows.net:9093
     properties:
@@ -13,9 +26,6 @@ spring:
         group: ${eventhubs.schema-group}
         registry:
           url: https://${eventhubs.namespace}.servicebus.windows.net
-      specific:
-        avro:
-          reader: true
     producer:
       # Use KafkaAvroDeserializer and KafkaAvroSerializer in azure-schemaregistry-kafka-avro after this PR merged:
       # https://github.com/Azure/azure-schema-registry-for-kafka/pull/57
