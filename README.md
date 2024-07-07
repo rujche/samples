@@ -74,6 +74,11 @@ It's just a simple Spring Boot application. You know how to run it in IDE.
 ## 2. More information
 For more information, please read the source code of current project.
 
-## 3. Support
+## 3. Next step
+
+See how to use [Spring Cloud Stream Kafka Binder](https://docs.spring.io/spring-cloud-stream/docs/current/reference/html/spring-cloud-stream-binder-kafka.html#_apache_kafka_binder) 
+instead of Spring Integration to send and receive message in [use-azure-schema-registry-in-spring-boot-application_spring-cloud-stream](https://github.com/rujche/samples/tree/use-azure-schema-registry-in-spring-boot-application_spring-cloud-stream) branch.
+
+## 4. Support
 
 If you have any question about this sample, welcome to [create a GitHub issue](https://github.com/rujche/samples/issues/new).
