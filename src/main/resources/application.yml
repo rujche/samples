@@ -1,4 +1,27 @@
-debug: true
+# debug: true
+eventhubs:
+  namespace: ${EVENT_HUBS_NAMESPACE}
+  eventhub: ${EVENT_HUB}
+  schema-group: ${SCHEMA_REGISTRY}
 spring:
   application:
     name: sample
+  kafka:
+    bootstrap-servers: ${eventhubs.namespace}.servicebus.windows.net:9093
+    properties:
+      schema:
+        group: ${eventhubs.schema-group}
+        registry:
+          url: https://${eventhubs.namespace}.servicebus.windows.net
+      specific:
+        avro:
+          reader: true
+    producer:
+      # Use KafkaAvroDeserializer and KafkaAvroSerializer in azure-schemaregistry-kafka-avro after this PR merged:
+      # https://github.com/Azure/azure-schema-registry-for-kafka/pull/57
+      value-serializer: rujche.sample.SampleKafkaAvroSerializer
+    consumer:
+      group-id: sample-message-group
+      # Use KafkaAvroDeserializer and KafkaAvroSerializer in azure-schemaregistry-kafka-avro after this PR merged:
+      # https://github.com/Azure/azure-schema-registry-for-kafka/pull/57
+      value-deserializer: rujche.sample.SampleKafkaAvroDeserializer
