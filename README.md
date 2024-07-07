@@ -53,16 +53,23 @@ Of course, you can use other tools like curl / Postman as you wish.
 
    > ![schema-created](./pictures/schema-created.png)
 
-## 2. FAQ
+## 2. More information
+For more information, please read the source code of current project.
 
-### 2.1. Why credential related properties are not necessary in `application.yml`
+## 3. Next step
 
-**Answer**: Actually, it's using the credential provided by [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/what-is-azure-cli). 
-Properties not necessary in `application.yml` is a part of `Passwordless` feature provided by [Spring Cloud Azure](https://aka.ms/spring/docs). 
-If you are interested in how it's implemented, you can refer to these codes:
-1. [AzureEventHubsKafkaOAuth2AutoConfiguration.java](https://github.com/Azure/azure-sdk-for-java/blob/a747dd7ab8b9ee8cc6e5a449b557b19536654d8b/sdk/spring/spring-cloud-azure-autoconfigure/src/main/java/com/azure/spring/cloud/autoconfigure/kafka/AzureEventHubsKafkaOAuth2AutoConfiguration.java#L26). 
-2. [DefaultAzureCredential.java](https://github.com/Azure/azure-sdk-for-java/blob/a747dd7ab8b9ee8cc6e5a449b557b19536654d8b/sdk/identity/azure-identity/src/main/java/com/azure/identity/DefaultAzureCredential.java#L101).
+1. See how to use `Spring Integration` instead of `spring-kafka` to send and receive message in [use-azure-schema-registry-in-spring-boot-application_spring-integration](https://github.com/rujche/samples/tree/use-azure-schema-registry-in-spring-boot-application_spring-integration) branch.
 
-## 3. Support
+## 4. FAQ
+
+1. Why credential related properties are not necessary in `application.yml`?
+
+   **Answer**: Actually, it's using the credential provided by [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/what-is-azure-cli). 
+   Properties not necessary in `application.yml` is a part of `Passwordless` feature provided by [Spring Cloud Azure](https://aka.ms/spring/docs). 
+   If you are interested in how it's implemented, you can refer to these codes:
+   1. [AzureEventHubsKafkaOAuth2AutoConfiguration.java](https://github.com/Azure/azure-sdk-for-java/blob/a747dd7ab8b9ee8cc6e5a449b557b19536654d8b/sdk/spring/spring-cloud-azure-autoconfigure/src/main/java/com/azure/spring/cloud/autoconfigure/kafka/AzureEventHubsKafkaOAuth2AutoConfiguration.java#L26). 
+   2. [DefaultAzureCredential.java](https://github.com/Azure/azure-sdk-for-java/blob/a747dd7ab8b9ee8cc6e5a449b557b19536654d8b/sdk/identity/azure-identity/src/main/java/com/azure/identity/DefaultAzureCredential.java#L101).
+
+## 5. Support
 
 If you have any question about this sample, welcome to [create a GitHub issue](https://github.com/rujche/samples/issues/new).
