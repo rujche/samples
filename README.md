@@ -1,3 +1,8 @@
 # Samples
 
-This repository is used to hold kinds of samples. Please check out specific branch to see specific sample.
+Add JVM parameter to create jfr file:
+
+```shell
+-XX:StartFlightRecording=duration=30s,filename=sample.jfr
+```
+
