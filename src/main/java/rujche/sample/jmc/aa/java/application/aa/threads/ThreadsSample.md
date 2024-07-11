@@ -98,3 +98,10 @@
        the [source code of JMC](https://github.com/openjdk/jmc/tree/0d8b09d602f306f65f577ccda8ef2abe120cf738/core/org.openjdk.jmc.flightrecorder.writer) 
        and give the diagram of jfr file format:
        > ![jfr-file-analyze.png](./jfr-file-analyze.png)
+21. Some conclusions about jfr file:
+    1. jfr is short for Java Flight Record.
+    2. jfr file contains detailed low-level information about how a JVM and Java applications are behaving.
+    3. jfr file is hex file, not text file.
+    4. The mainly content in jfr file are events.
+    5. `jfr print` can be used to print contents of a jfr file.
+    6. There is no spec for the jfr file format. The best way to analyze a jfr file is using JMC.
