@@ -87,5 +87,14 @@
     3. What will happen if File Size for 1 hour is 35 GB?
     4. We can use command `-XX:StartFlightRecording:maxsize=50MB,maxage=1h` to set max size and max age. The default 
        max size is 250 MB, there is no default value of max age.
-
-
+20. jfr file just contains a list of events, and all its content can be converted into text file by `jfr print`. Is that 
+    true? To give the answer to this question, I did some more investigation. 
+    1. Open the jfr file by hex editor (Here is a hex editor online: https://hexed.it/), I found some string contained 
+       in the .jfr file, but not included in the .jfr.text. Seems some information lost from .jfr file to .jfr.text file.
+       > ![compare-jfr-and-text.png](./compare-jfr-and-text.png)
+    2. After short-time investigation, I found a [related post](https://x.com/ErikGahlin/status/1495338682651402242) in x.com:
+       > ![jfr-format-related-post.png](./jfr-format-related-post.png)
+    3. Someone [analyzed the jfr file format](http://www.beet.asia/2023/10/24/JavaFlightRecorderFileFormat/) by reading 
+       the [source code of JMC](https://github.com/openjdk/jmc/tree/0d8b09d602f306f65f577ccda8ef2abe120cf738/core/org.openjdk.jmc.flightrecorder.writer) 
+       and give the diagram of jfr file format:
+       > ![jfr-file-analyze.png](./jfr-file-analyze.png)
