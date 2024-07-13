@@ -116,4 +116,6 @@ Just following the steps below one by one to learn about the basic usage of rela
        > ![Threads-find-event-in-jfr-file-3-jfr-file](../pictures/Threads-find-event-in-jfr-file-3-jfr-file.png)
 13. Find related event in JMC page.
     > ![Threads-find-event-in-JMC](../pictures/Threads-find-event-in-JMC.png)
+14. I found that the outline support DIY:
+    > ![Threads-Outline-support-DIY](../pictures/Threads-Outline-support-DIY.png)
 
