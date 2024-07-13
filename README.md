@@ -31,7 +31,7 @@ You can click link below to get specific sample's doc.
 1. Java Application
    1. [Threads](./docs/Threads.md)
    2. [Memory](./docs/Memory.md)
-   3. Lock Instances
+   3. [Lock Instances](./docs/LockInstances.md)
    4. File I/O
    5. Socket I/O
    6. Method Profiling
