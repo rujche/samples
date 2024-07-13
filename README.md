@@ -54,7 +54,6 @@ You can click link below to get specific sample's doc.
    6. Recording
       1. Constant Pools
 4. Event Browser
-5. Filtered Events
 
 ### 4. Reference
 
