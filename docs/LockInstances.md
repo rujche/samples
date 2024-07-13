@@ -153,7 +153,10 @@ Just following the steps below one by one to learn about the basic usage of rela
    > ![LockInstances-record-event-when-unblocked](../pictures/LockInstances-record-event-when-unblocked.png)
 22. There is one `Java Monitor Blocked` event, and duration is about 14 seconds. This meets my expectation.
 23. `Java Monitor Blocked` event was recorded when unblocked to get the information of duration, deadlock will never 
-   unblock, so there is no `Java Monitor Blocked` event. This can explain all we have experienced.
+   unblock, so there is no `Java Monitor Blocked` event. This can explain all we have experienced. I tried to confirm 
+   it by [searching in GitHub/openjdk](https://github.com/search?q=repo%3Aopenjdk%2Fjdk%20JavaMonitorEnter%20&type=code) 
+   and [searching in JDK bug system](https://bugs.openjdk.org/browse/JDK-8326338?jql=text%20~%20%22JavaMonitorEnter%22), 
+   both failed.
 24. Create a sample to check multi-lock scenario:
    ```java
    private static class MultiThreadLockOnOneObject {
