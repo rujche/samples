@@ -53,7 +53,7 @@ You can click link below to get specific sample's doc.
    5. Agents
    6. Recording
       1. Constant Pools
-4. Event Browser ([Threads](./docs/Threads.md))
+4. [Event Browser](./docs/EventBrowser.md)
 
 ### 4. Reference
 
