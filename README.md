@@ -29,7 +29,7 @@ This project provides samples of using JMC to analyze JFR files.
 You can click link below to get specific sample's doc.
 
 1. Java Application
-   1. Threads
+   1. [Threads](./docs/Threads.md)
    2. Memory
    3. Lock Instances
    4. File I/O
@@ -53,7 +53,7 @@ You can click link below to get specific sample's doc.
    5. Agents
    6. Recording
       1. Constant Pools
-4. Event Browser
+4. Event Browser ([Threads](./docs/Threads.md))
 
 ### 4. Reference
 
