@@ -5,13 +5,13 @@ import org.openjdk.jol.info.GraphLayout;
 import org.openjdk.jol.vm.VM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rujche.sample.jmc.aa.java.application.ab.memory.TestClassTwo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MemorySample {
     private static final Logger LOGGER = LoggerFactory.getLogger(MemorySample.class);
+
     public static void main(String[] args) {
         LOGGER.info("main started.");
         List<Object> list = new ArrayList<>();
