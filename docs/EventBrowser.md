@@ -1,3 +1,5 @@
 # Event Browser
 
-Please refer to [Threads](./Threads.md).
+Please refer to these docs:
+1. [Threads](./Threads.md)
+2. [Method Profiling](./MethodProfiling.md)

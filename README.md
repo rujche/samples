@@ -34,7 +34,7 @@ You can click link below to get specific sample's doc.
    3. [Lock Instances](./docs/LockInstances.md)
    4. [File I/O](./docs/FileIO.md)
    5. [Socket I/O](./docs/SocketIO.md)
-   6. Method Profiling
+   6. [Method Profiling](./docs/MethodProfiling.md)
    7. Exceptions
    8. Thread Dumps
 2. JVM Internals
