@@ -77,6 +77,9 @@ Just following the steps below one by one to learn about the basic usage of rela
    4. The `Method List` page provides more useful information than JMC.
       > ![MethodProfiling-Intellij-IDEA-4](../pictures/MethodProfiling-Intellij-IDEA-4.png)
       > ![MethodProfiling-Intellij-IDEA-5-compare-toJMC](../pictures/MethodProfiling-Intellij-IDEA-5-compare-toJMC.png)
-
+8. The `Profiler` tool provided by Intellij IDEA are good at show CPU usage and Memory allocation for each line in 
+   source code.
+   > ![MethodProfiling-Intellij-IDEA-show-CPU](../pictures/MethodProfiling-Intellij-IDEA-show-CPU.png)
+   > ![MethodProfiling-Intellij-IDEA-show-Memory](../pictures/MethodProfiling-Intellij-IDEA-show-Memory.png)
 
 
