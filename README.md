@@ -35,7 +35,7 @@ You can click link below to get specific sample's doc.
    4. [File I/O](./docs/FileIO.md)
    5. [Socket I/O](./docs/SocketIO.md)
    6. [Method Profiling](./docs/MethodProfiling.md)
-   7. Exceptions
+   7. [Exceptions](./docs/Exceptions.md)
    8. Thread Dumps
 2. JVM Internals
    1. Garbage Collections
