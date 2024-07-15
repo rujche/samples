@@ -37,10 +37,16 @@ Just following the steps below one by one to learn about the basic usage of rela
 8. Note that it should be `jdk.FileRead#threshold`, not `jdk.FileRead.threshold`.
 9. All supported parameters and default value can be found in `${JAVA_HOME}/lib/jfr/default.jfc`.
    > ![FileIO-default-jfc](../pictures/FileIO-default-jfc.png)
-10. Use the new JVM parameter create a new `sample.jfr`, open it by JMC.
+10. If you start a flight record by JMC, the configurations are just another way to configure the condition of record
+   events.
+   > ![FileIO-JMC-start-a-recording](../pictures/FileIO-JMC-start-a-recording.png)
+   > ![FileIO-JMC-start-a-recording-template-manager](../pictures/FileIO-JMC-start-a-recording-template-manager.png)
+   > ![FileIO-JMC-start-a-recording-event-options](../pictures/FileIO-JMC-start-a-recording-event-options.png)
+   > ![FileIO-JMC-start-a-recording-event-options-2](../pictures/FileIO-JMC-start-a-recording-event-options-2.png)
+11. Use the new JVM parameter create a new `sample.jfr`, open it by JMC.
    > ![FileIO-nothing-special-in-Automated-Analysis-Results](../pictures/FileIO-nothing-special-in-Automated-Analysis-Results.png)
-11. Click `File I/O`.
+12. Click `File I/O`.
    > ![FileIO-scope-narrow-down-in-order](../pictures/FileIO-scope-narrow-down-in-order.png)
-12. We found that the scope of events narrow down in an order like a right bracket: `)`.
+13. We found that the scope of events narrow down in an order like a right bracket: `)`.
 
 
