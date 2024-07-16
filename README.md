@@ -15,12 +15,19 @@ To analyze a flight recording using JMC, this project provides some samples and 
    and detailed runtime information enabling after-the-fact incident analysis. The tool chain enables developers and 
    administrators to collect and analyze data from Java applications running locally or deployed in production 
    environments.
-4. Here is a simple diagram:
-   ```mermaid
-   graph LR
-       JVM -->|JVM create jfr file| xxx.jfr
-       xxx.jfr --->|jfr file analyzed by JMC| JMC
-   ```
+4. JFR file just like log file of JVM
+   1. Diagram of jfr file:
+      ```mermaid
+      graph LR
+          JVM -->|creates| xxx.jfr
+          xxx.jfr --->|analyzed| JMC
+      ```
+   2. Diagram of application log file:
+      ```mermaid
+      graph LR
+          Application -->|creates| log.text
+          log.text --->|analyzed by| LogAnalyzer
+      ```
 
 ### 2. Samples
 
