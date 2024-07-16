@@ -20,13 +20,13 @@ To analyze a flight recording using JMC, this project provides some samples and 
       ```mermaid
       graph LR
           JVM -->|creates| xxx.jfr
-          xxx.jfr --->|analyzed by| JMC
+          xxx.jfr -->|analyzed by| JMC
       ```
    2. Diagram of application log file:
       ```mermaid
       graph LR
           Application -->|creates| log.text
-          log.text --->|analyzed by| LogAnalyzer
+          log.text -->|analyzed by| LogAnalyzer
       ```
 
 ### 2. Samples
