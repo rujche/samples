@@ -471,5 +471,14 @@ are not sure whether `jdk.ExceptionStatistics` are included in JMC's `Exceptions
 57. Run above code again.
    > ![Exceptions-Exception-statics-number-investigation-2](../pictures/Exceptions-Exception-statics-number-investigation-2.png)
 58. Confirmed the 2 Points are right. The reason is unknown now.
+59. Another thing: In Intellij IDEA event browser, the `Duration` is `0` and `End Time` is equal to `Start Time`. It's 
+   misleading information. Actually, there is no `endTime` in `sample.jfr.text`. Similar problem also exists in JMC.
+   > ![Exceptions-endTime-not-provided](../pictures/Exceptions-endTime-not-provided.png)
+   > ![Exceptions-endTime-not-provided-2](../pictures/Exceptions-endTime-not-provided-2.png)
+
+
+
+
+
 
 
