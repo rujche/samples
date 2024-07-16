@@ -33,7 +33,8 @@ Just following the steps below one by one to learn about the basic usage of rela
         lock --> sleep
         sleep --> quit
     ```
-3. Run the code with JVM parameter `-XX:StartFlightRecording=duration=30s,filename=sample.jfr`.
+3. Run the code with JVM parameter `-XX:StartFlightRecording=duration=30s,filename=sample.jfr`. More information about 
+   `-XX:StartFlightRecording` can be found in [java command doc](https://docs.oracle.com/en/java/javase/22/docs/specs/man/java.html).
 4. Check the output log. Does it meet with your expectation? Here is the log in my side:
    ```text
    [0.813s][info][jfr,startup] Started recording 1. The result will be written to:
