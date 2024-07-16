@@ -92,4 +92,10 @@
     ```
 14. Open `sample.jfr.jdk.ThreadDump.text` and found nothing special. JMC just provide a list of thread dumps, and the
     list help us easier to find and view the thread dump we care about.
+15. Click `Event Browser`, search `dump` and click `Thread Dump`. There are 4 thread dumps.
+    > ![ThreadDumps-event-browser](../pictures/ThreadDumps-event-browser.png)
+16. Let take a look at the prompt ups:
+    > ![ThreadDumps-prompt-up-1](../pictures/ThreadDumps-prompt-up-1.png)
+    > ![ThreadDumps-prompt-up-2](../pictures/ThreadDumps-prompt-up-2.png)
+
 
