@@ -32,7 +32,30 @@
    1. Flight recording information is written in chunks.
    2. Use `jfr assemble` to assemble chunk files into a recording file.
    3. Use `jfr disassemble` to decompose a flight recording file into its chunk file pieces.
-5. Read the java code and think about the expected output.
+5. What does `control="thread-dump"` mean?
+   1. This means that the value of the is not hardcoded in the setting element itself but is instead referenced from 
+      the file-threshold element. This allows for a centralized control point that can be used to adjust the threshold 
+      value for multiple events or settings within the JFR configuration file. Refs: 
+      [JDK-8279821](https://bugs.openjdk.org/browse/JDK-8279821).
+   2. In the file, there is a section like this:
+        ```xml
+              <selection name="thread-dump" default="once" label="Thread Dump">
+                <option label="Off" name="off">999 d</option>
+                <option label="At least Once" name="once">everyChunk</option>
+                <option label="Every 60 s" name="60s">60 s</option>
+                <option label="Every 10 s" name="10s">10 s</option>
+                <option label="Every 1 s" name="1s">1 s</option>
+              </selection>
+        ```
+   3. At the beginning of the file, there is a section like this:
+       ```text
+         Recommended way to edit .jfc files is to use the configure command of
+         the 'jfr' tool, i.e. jfr configure, or JDK Mission Control
+         see Window -> Flight Recorder Template Manager
+       ```
+    4. When start a Flight Recording by JMC, there is a option like this:
+   > ![ThreadDumps-configure-thread-dump](../pictures/ThreadDumps-configure-thread-dump.png)
+6. Read the java code and think about the expected output.
     ```java
     public class ThreadDumpsSample {
         private static final Logger LOGGER = LoggerFactory.getLogger(ThreadDumpsSample.class);
