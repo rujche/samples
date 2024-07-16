@@ -48,7 +48,8 @@ Just following the steps below one by one to learn about the basic usage of rela
    09:52:23.230 [main-synchronizedSleep02] INFO rujche.sample.jmc.ThreadsSample -- synchronizedSleep ended.
    ```
 5. JFR file is binary file, it's not readable directly. But we can print jfr file contents to text file by jfr tool in 
-   JDK. The jfr tool is part of the JDK installation. 
+   JDK. The jfr tool is part of the JDK installation. For more information about jfr, please refer to 
+   [jfr command doc](https://docs.oracle.com/en/java/javase/22/docs/specs/man/jfr.html).
    ```shell
    $ jfr print sample.jfr > sample.jfr.txt
    ```
