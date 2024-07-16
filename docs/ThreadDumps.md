@@ -53,8 +53,8 @@
          the 'jfr' tool, i.e. jfr configure, or JDK Mission Control
          see Window -> Flight Recorder Template Manager
        ```
-    4. When start a Flight Recording by JMC, there is a option like this:
-   > ![ThreadDumps-configure-thread-dump](../pictures/ThreadDumps-configure-thread-dump.png)
+   4. When start a Flight Recording by JMC, there is a option like this:
+      > ![ThreadDumps-configure-thread-dump](../pictures/ThreadDumps-configure-thread-dump.png)
 6. Read the java code and think about the expected output.
     ```java
     public class ThreadDumpsSample {
