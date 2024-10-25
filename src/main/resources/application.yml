@@ -1,4 +1,20 @@
-debug: true
+# debug: true
 spring:
   application:
     name: sample
+  cloud:
+    azure:
+      eventhubs:
+        namespace: ${AZURE_EVENTHUBS_NAMESPACE}
+    function:
+      definition: supply
+    stream:
+      bindings:
+        supply-out-0:
+          destination: eventhubone
+      default:
+        producer:
+          errorChannelEnabled: true
+      poller:
+        initial-delay: 0
+        fixed-delay: 1000
