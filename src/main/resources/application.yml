@@ -5,20 +5,20 @@ spring:
   cloud:
     azure:
       eventhubs:
-        namespace: ${AZURE_EVENTHUBS_NAMESPACE}
+        namespace: eventhubnamespaceone
         processor:
           checkpoint-store:
-            container-name: ${AZURE_STORAGE_CONTAINER_NAME}
-            account-name:  ${AZURE_STORAGE_ACCOUNT_NAME}
+            container-name: containerone
+            account-name:  accountone
     function:
       definition: consume;supply
     stream:
       bindings:
         consume-in-0:
-          destination: ${AZURE_EVENTHUB_NAME}
-          group: ${AZURE_EVENTHUB_CONSUMER_GROUP}
+          destination: eventhubone
+          group: default
         supply-out-0:
-          destination: ${AZURE_EVENTHUB_NAME} # same as the above destination
+          destination: eventhubone # same as the above destination
       eventhubs:
         bindings:
           consume-in-0:
