@@ -23,7 +23,7 @@ public class SampleApplication {
 		return (args) -> {
 			System.out.println("hello world");
 			redisTemplate.opsForValue().set("key", "value");
-			System.out.println("Get key from redis: key = " + redisTemplate.opsForValue().get("key"));
+			System.out.println("Get value from redis: Value = " + redisTemplate.opsForValue().get("key"));
 		};
 	}
 
