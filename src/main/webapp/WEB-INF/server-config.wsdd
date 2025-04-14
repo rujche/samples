@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="http://xml.apache.org/axis/wsdd/"
+            xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+    <globalConfiguration>
+        <parameter name="sendXsiTypes" value="true"/>
+        <parameter name="sendMultiRefs" value="true"/>
+        <parameter name="sendXMLDeclaration" value="true"/>
+        <parameter name="axis.sendMinimizedElements" value="true"/>
+    </globalConfiguration>
+
+    <handler name="URLMapper" type="java:org.apache.axis.handlers.http.URLMapper"/>
+    
+    <service name="CalculatorService" provider="java:RPC">
+        <parameter name="className" value="com.example.jaxrpc.CalculatorServiceImpl"/>
+        <parameter name="allowedMethods" value="*"/>
+        <namespace>http://jaxrpc.example.com</namespace>
+    </service>
+
+    <transport name="http">
+        <requestFlow>
+            <handler type="URLMapper"/>
+        </requestFlow>
+    </transport>
+
+</deployment>
