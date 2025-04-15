@@ -1,44 +1,44 @@
-# Oracle Spring Boot Integration Demo
+# PostgreSQL Spring Boot Integration Demo
 
-This project demonstrates various ways to integrate Oracle Database with Spring Boot 3.4.4. It showcases different methods of database interaction and Oracle-specific features.
+This project demonstrates various ways to integrate PostgreSQL Database with Spring Boot 3.4.4. It showcases different methods of database interaction and PostgreSQL-specific features.
 
 ## Project Overview
 
-This is a Spring Boot application demonstrating comprehensive Oracle Database integration using:
+This is a Spring Boot application demonstrating comprehensive PostgreSQL Database integration using:
 - Spring Data JPA
 - MyBatis XML mapping
 - JDBC Template
 - Native SQL queries
-- Oracle-specific features (PL/SQL, CONNECT BY, MERGE statements, etc.)
+- PostgreSQL-specific features (PL/pgSQL functions, recursive queries, INSERT ON CONFLICT statements, etc.)
 
 ## Features
 
 ### 1. JPA Repository with @Query
 - JPQL and native SQL queries
-- Oracle-specific functions and syntax
+- PostgreSQL-specific functions and syntax
 
 ### 2. MyBatis XML SQL Mapping
 - XML-based SQL mapping
 - ResultMap configurations
 - Dynamic SQL generation
-- Oracle pagination using ROWNUM
+- PostgreSQL pagination using LIMIT/OFFSET
 
 ### 3. JDBC Template Direct SQL Access
 - Direct SQL execution
-- Oracle analytical functions
+- PostgreSQL analytical functions
 - Named parameters
-- Stored procedure calls
+- Function calls
 
 ### 4. Database Schema
 - SQL scripts for schema creation
-- Stored procedures and functions
-- Sample data with Oracle MERGE and hierarchical queries
+- Functions in PL/pgSQL
+- Sample data with PostgreSQL INSERT ON CONFLICT and recursive queries
 
 ## Prerequisites
 
 - JDK 21+
 - Maven 3.8+
-- Oracle Database (accessible via the connection details in application.yml)
+- PostgreSQL Database (accessible via the connection details in application.yml)
 
 ## Getting Started
 
@@ -49,10 +49,10 @@ Update the database connection details in `src/main/resources/application.yml`:
 ```yaml
 spring:
   datasource:
-    url: jdbc:oracle:thin:@localhost:1521:ORCL
+    url: jdbc:postgresql://localhost:5432/postgres
     username: your_username
     password: your_password
-    driver-class-name: oracle.jdbc.OracleDriver
+    driver-class-name: org.postgresql.Driver
 ```
 
 ### 2. Build the Application
@@ -70,23 +70,23 @@ mvn spring-boot:run
 Or run the JAR file:
 
 ```powershell
-java -jar target/oracle-spring-demo-0.0.1-SNAPSHOT.jar
+java -jar target/postgresql-spring-demo-0.0.1-SNAPSHOT.jar
 ```
 
 ## API Endpoints
 
-The application provides REST API endpoints to demonstrate Oracle DB interactions:
+The application provides REST API endpoints to demonstrate PostgreSQL DB interactions:
 
 - `GET /api/employees` - Get all employees (JPA)
 - `GET /api/employees/department/{deptId}` - Get employees by department ID (JPA @Query)
 - `GET /api/employees/salary-greater-than/{salary}` - Get employees with salary greater than specified amount (Native SQL)
 - `GET /api/employees/department-name/{deptName}` - Get employees by department name (JPA with joins)
-- `GET /api/employees/search/{namePattern}` - Search employees by name pattern (Oracle LIKE with UPPER)
-- `GET /api/employees/hired-between?startDate=X&endDate=Y` - Get employees hired between dates (Oracle DATE functions)
+- `GET /api/employees/search/{namePattern}` - Search employees by name pattern (PostgreSQL LIKE with UPPER)
+- `GET /api/employees/hired-between?startDate=X&endDate=Y` - Get employees hired between dates (PostgreSQL DATE functions)
 - `GET /api/employees/high-salary/{minSalary}` - Get high salary employees (JDBC Template)
-- `GET /api/employees/dept-salary-stats` - Get department salary statistics (Oracle analytical functions)
-- `PUT /api/employees/{employeeId}/update-salary/{percentIncrease}` - Update employee salary (Oracle stored procedure)
-- `GET /api/employees/hierarchy/{managerId}` - Get employee hierarchy (CONNECT BY query)
+- `GET /api/employees/dept-salary-stats` - Get department salary statistics (PostgreSQL analytical functions)
+- `PUT /api/employees/{employeeId}/update-salary/{percentIncrease}` - Update employee salary (PostgreSQL function)
+- `GET /api/employees/hierarchy/{managerId}` - Get employee hierarchy (Recursive WITH query)
 - `GET /api/employees/salary-categories` - Get employee salary categories (CASE expressions and subqueries)
 
 ## Project Structure
