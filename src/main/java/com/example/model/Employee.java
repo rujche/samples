@@ -12,42 +12,41 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "EMPLOYEES")
+@Table(name = "employees")
 public class Employee {
     
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "EMP_SEQ")
-    @SequenceGenerator(name = "EMP_SEQ", sequenceName = "EMPLOYEES_SEQ", allocationSize = 1)
-    @Column(name = "EMPLOYEE_ID")
+    @SequenceGenerator(name = "EMP_SEQ", sequenceName = "employees_seq", allocationSize = 1)
+    @Column(name = "employee_id")
     private Long id;
-    
-    @Column(name = "FIRST_NAME")
+      @Column(name = "first_name")
     private String firstName;
     
-    @Column(name = "LAST_NAME", nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
     
-    @Column(name = "EMAIL", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
     
-    @Column(name = "PHONE_NUMBER")
+    @Column(name = "phone_number")
     private String phoneNumber;
     
-    @Column(name = "HIRE_DATE", nullable = false)
+    @Column(name = "hire_date", nullable = false)
     private LocalDate hireDate;
     
-    @Column(name = "JOB_ID", nullable = false)
+    @Column(name = "job_id", nullable = false)
     private String jobId;
     
-    @Column(name = "SALARY")
+    @Column(name = "salary")
     private BigDecimal salary;
     
-    @Column(name = "COMMISSION_PCT")
+    @Column(name = "commission_pct")
     private BigDecimal commissionPct;
     
-    @Column(name = "MANAGER_ID")
+    @Column(name = "manager_id")
     private Long managerId;
     
-    @Column(name = "DEPARTMENT_ID")
+    @Column(name = "department_id")
     private Long departmentId;
 }

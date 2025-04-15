@@ -32,32 +32,30 @@ public class EmployeeJdbcService {
             new int[]{Types.NUMERIC}, 
             (rs, rowNum) -> mapEmployeeFromResultSet(rs));
     }
-    
-    // Example of using Oracle's analytical functions
+      // Example of using PostgreSQL's analytical functions
     public List<Map<String, Object>> getDepartmentSalaryStats() {
         String sql = """
             SELECT 
-                DEPARTMENT_ID, 
-                AVG(SALARY) AS AVG_SALARY,
-                MIN(SALARY) AS MIN_SALARY,
-                MAX(SALARY) AS MAX_SALARY,
-                COUNT(*) AS EMP_COUNT,
-                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY SALARY) AS MEDIAN_SALARY
-            FROM EMPLOYEES
-            GROUP BY DEPARTMENT_ID
-            ORDER BY DEPARTMENT_ID
+                department_id, 
+                AVG(salary) AS avg_salary,
+                MIN(salary) AS min_salary,
+                MAX(salary) AS max_salary,
+                COUNT(*) AS emp_count,
+                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY salary) AS median_salary
+            FROM employees
+            GROUP BY department_id
+            ORDER BY department_id
         """;
         
         return jdbcTemplate.queryForList(sql);
     }
-    
-    // Example of using named parameters with Oracle DATE functions
+      // Example of using named parameters with PostgreSQL DATE functions
     public List<Employee> findEmployeesHiredInRange(String startDate, String endDate) {
         String sql = """
-            SELECT * FROM EMPLOYEES 
-            WHERE TRUNC(HIRE_DATE) BETWEEN TO_DATE(:startDate, 'YYYY-MM-DD') 
-            AND TO_DATE(:endDate, 'YYYY-MM-DD')
-            ORDER BY HIRE_DATE
+            SELECT * FROM employees 
+            WHERE DATE_TRUNC('day', hire_date) BETWEEN to_date(:startDate, 'YYYY-MM-DD') 
+            AND to_date(:endDate, 'YYYY-MM-DD')
+            ORDER BY hire_date
         """;
         
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -66,11 +64,10 @@ public class EmployeeJdbcService {
         
         return namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> mapEmployeeFromResultSet(rs));
     }
-    
-    // Example of calling Oracle stored procedure using SimpleJdbcCall
+      // Example of calling PostgreSQL function using SimpleJdbcCall
     public void updateEmployeeSalary(Long employeeId, BigDecimal percentIncrease) {
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
-            .withProcedureName("update_employee_salary");
+            .withFunctionName("update_employee_salary");
             
         Map<String, Object> inParams = new HashMap<>();
         inParams.put("p_employee_id", employeeId);
@@ -78,36 +75,46 @@ public class EmployeeJdbcService {
         
         jdbcCall.execute(inParams);
     }
-    
-    // Example of using Oracle's hierarchical query (CONNECT BY)
+      // Example of using PostgreSQL's recursive query (instead of Oracle's CONNECT BY)
     public List<Map<String, Object>> getEmployeeHierarchy(Long managerId) {
         String sql = """
+            WITH RECURSIVE emp_hierarchy AS (
+                SELECT 
+                    employee_id, first_name, last_name, 
+                    manager_id, 1 AS hierarchy_level,
+                    last_name::text AS emp_path
+                FROM employees
+                WHERE manager_id = ?
+                UNION ALL
+                SELECT 
+                    e.employee_id, e.first_name, e.last_name, 
+                    e.manager_id, h.hierarchy_level + 1,
+                    h.emp_path || '/' || e.last_name
+                FROM employees e
+                JOIN emp_hierarchy h ON e.manager_id = h.employee_id
+            )
             SELECT 
-                EMPLOYEE_ID, FIRST_NAME, LAST_NAME, 
-                LEVEL as HIERARCHY_LEVEL, 
-                SYS_CONNECT_BY_PATH(LAST_NAME, '/') as EMP_PATH
-            FROM EMPLOYEES
-            START WITH MANAGER_ID = ?
-            CONNECT BY PRIOR EMPLOYEE_ID = MANAGER_ID
-            ORDER SIBLINGS BY LAST_NAME
+                employee_id, first_name, last_name, 
+                hierarchy_level, emp_path 
+            FROM emp_hierarchy
+            ORDER BY hierarchy_level, last_name
         """;
         
         return jdbcTemplate.queryForList(sql, managerId);
     }
-    
-    // Example using Oracle's CASE expression and subquery
+      // Example using PostgreSQL's CASE expression and subquery 
     public List<Map<String, Object>> getEmployeeSalaryCategories() {
         String sql = """
             SELECT 
-                e.EMPLOYEE_ID, e.FIRST_NAME, e.LAST_NAME, e.SALARY,
+                e.employee_id, e.first_name, e.last_name, e.salary,
                 CASE 
-                    WHEN e.SALARY < 5000 THEN 'Low'
-                    WHEN e.SALARY BETWEEN 5000 AND 10000 THEN 'Medium'
+                    WHEN e.salary < 5000 THEN 'Low'
+                    WHEN e.salary BETWEEN 5000 AND 10000 THEN 'Medium'
                     ELSE 'High'
-                END AS SALARY_CATEGORY,
-                (SELECT AVG(SALARY) FROM EMPLOYEES WHERE DEPARTMENT_ID = e.DEPARTMENT_ID) AS DEPT_AVG_SALARY
-            FROM EMPLOYEES e
-            ORDER BY e.DEPARTMENT_ID, e.SALARY DESC
+                END AS salary_category,
+                (SELECT AVG(salary) FROM employees WHERE department_id = e.department_id) AS dept_avg_salary
+            FROM employees e
+            ORDER BY e.department_id, e.salary DESC
         """;
         
         return jdbcTemplate.queryForList(sql);

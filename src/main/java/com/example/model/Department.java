@@ -9,21 +9,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "DEPARTMENTS")
+@Table(name = "departments")
 public class Department {
     
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "DEPT_SEQ")
-    @SequenceGenerator(name = "DEPT_SEQ", sequenceName = "DEPARTMENTS_SEQ", allocationSize = 1)
-    @Column(name = "DEPARTMENT_ID")
+    @SequenceGenerator(name = "DEPT_SEQ", sequenceName = "departments_seq", allocationSize = 1)
+    @Column(name = "department_id")
     private Long id;
     
-    @Column(name = "DEPARTMENT_NAME", nullable = false)
+    @Column(name = "department_name", nullable = false)
     private String name;
     
-    @Column(name = "MANAGER_ID")
+    @Column(name = "manager_id")
     private Long managerId;
     
-    @Column(name = "LOCATION_ID")
+    @Column(name = "location_id")
     private Long locationId;
 }
