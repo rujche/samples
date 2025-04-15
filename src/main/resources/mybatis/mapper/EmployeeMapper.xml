@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.EmployeeMapper">
+
+  <!-- Result map example -->
+  <resultMap id="employeeResultMap" type="com.example.model.Employee">
+    <id property="id" column="EMPLOYEE_ID"/>
+    <result property="firstName" column="FIRST_NAME"/>
+    <result property="lastName" column="LAST_NAME"/>
+    <result property="email" column="EMAIL"/>
+    <result property="phoneNumber" column="PHONE_NUMBER"/>
+    <result property="hireDate" column="HIRE_DATE"/>
+    <result property="jobId" column="JOB_ID"/>
+    <result property="salary" column="SALARY"/>
+    <result property="commissionPct" column="COMMISSION_PCT"/>
+    <result property="managerId" column="MANAGER_ID"/>
+    <result property="departmentId" column="DEPARTMENT_ID"/>
+  </resultMap>
+
+  <!-- Simple select query -->
+  <select id="selectById" resultMap="employeeResultMap">
+    SELECT * FROM EMPLOYEES WHERE EMPLOYEE_ID = #{id}
+  </select>
+  
+  <!-- Using Oracle specific functions -->
+  <select id="findEmployeesByName" resultMap="employeeResultMap">
+    SELECT * FROM EMPLOYEES 
+    WHERE UPPER(FIRST_NAME) LIKE UPPER(#{namePattern} || '%')
+       OR UPPER(LAST_NAME) LIKE UPPER(#{namePattern} || '%')
+  </select>
+  
+  <!-- Complex query with join and sorting -->
+  <select id="findEmployeesInDepartment" resultMap="employeeResultMap">
+    SELECT e.* FROM EMPLOYEES e
+    JOIN DEPARTMENTS d ON e.DEPARTMENT_ID = d.DEPARTMENT_ID
+    WHERE d.DEPARTMENT_NAME = #{departmentName}
+    ORDER BY e.SALARY DESC
+  </select>
+  
+  <!-- Using Oracle's ROWNUM for pagination -->
+  <select id="findEmployeesWithPagination" resultMap="employeeResultMap">
+    SELECT * FROM (
+      SELECT a.*, ROWNUM rn FROM (
+        SELECT * FROM EMPLOYEES
+        ORDER BY HIRE_DATE DESC
+      ) a WHERE ROWNUM &lt;= #{limit}
+    ) WHERE rn > #{offset}
+  </select>
+  
+  <!-- Example of dynamic SQL -->
+  <select id="findEmployeesByDynamicCriteria" resultMap="employeeResultMap">
+    SELECT * FROM EMPLOYEES
+    <where>
+      <if test="departmentId != null">
+        DEPARTMENT_ID = #{departmentId}
+      </if>
+      <if test="jobId != null">
+        AND JOB_ID = #{jobId}
+      </if>
+      <if test="minSalary != null">
+        AND SALARY >= #{minSalary}
+      </if>
+      <if test="hiredAfter != null">
+        <![CDATA[ AND HIRE_DATE >= TO_DATE(#{hiredAfter}, 'YYYY-MM-DD') ]]>
+      </if>
+    </where>
+    ORDER BY HIRE_DATE DESC
+  </select>
+  
+  <!-- Using Oracle stored procedure -->
+  <update id="updateEmployeeSalary">
+    {call update_employee_salary(
+      #{employeeId, mode=IN, jdbcType=NUMERIC},
+      #{percentIncrease, mode=IN, jdbcType=NUMERIC}
+    )}
+  </update>
+
+  <!-- Insert statement -->
+  <insert id="insertEmployee">
+    INSERT INTO EMPLOYEES (
+      EMPLOYEE_ID, FIRST_NAME, LAST_NAME, EMAIL, PHONE_NUMBER,
+      HIRE_DATE, JOB_ID, SALARY, COMMISSION_PCT, MANAGER_ID, DEPARTMENT_ID
+    )
+    VALUES (
+      #{id}, #{firstName}, #{lastName}, #{email}, #{phoneNumber},
+      #{hireDate}, #{jobId}, #{salary}, #{commissionPct}, #{managerId}, #{departmentId}
+    )
+  </insert>
+</mapper>
