@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>JAX-RPC Calculator Service</title>
+    <title>JAX-WS Calculator Service</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,10 +32,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>JAX-RPC Calculator Web Service</h1>
+        <h1>JAX-WS Calculator Web Service</h1>
         
         <div class="info">
-            <p>This is a sample JAX-RPC web service implementation using Apache Axis.</p>
+            <p>This is a sample JAX-WS web service implementation.</p>
             <p>The calculator service provides basic arithmetic operations:</p>
             <ul>
                 <li>Addition</li>
@@ -54,6 +54,10 @@
         <h2>Testing the Service</h2>
         <p>You can use the client application provided in this project to test the service.</p>
         <p>See the README.md file for detailed instructions on building and running the client.</p>
+        
+        <h2>About JAX-WS</h2>
+        <p>JAX-WS (Java API for XML Web Services) is the modern successor to JAX-RPC, providing a simpler 
+           programming model, support for SOAP 1.2, and better integration with JAXB for XML data binding.</p>
     </div>
 </body>
 </html>

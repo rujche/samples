@@ -1,14 +1,14 @@
-# JAX-RPC Sample Project
+# JAX-WS Sample Project
 
-This project demonstrates the usage of JAX-RPC (Java API for XML-based RPC) using Apache Axis as the implementation framework. The sample includes both a server-side web service and a client application.
+This project demonstrates the usage of JAX-WS (Java API for XML Web Services) using the Metro implementation. The sample includes both a server-side web service and a client application.
 
 ## Project Structure
 
-- `src/main/java/com/example/jaxrpc/CalculatorService.java`: Service interface defining arithmetic operations
-- `src/main/java/com/example/jaxrpc/CalculatorServiceImpl.java`: Implementation of the service interface
-- `src/main/java/com/example/jaxrpc/client/CalculatorClient.java`: Client application to consume the web service
+- `src/main/java/com/example/jaxws/CalculatorService.java`: Service interface defining arithmetic operations
+- `src/main/java/com/example/jaxws/CalculatorServiceImpl.java`: Implementation of the service interface
+- `src/main/java/com/example/jaxws/client/CalculatorClient.java`: Client application to consume the web service
 - `src/main/webapp/WEB-INF/web.xml`: Web application deployment descriptor
-- `src/main/webapp/WEB-INF/server-config.wsdd`: Axis service deployment descriptor
+- `src/main/webapp/WEB-INF/sun-jaxws.xml`: JAX-WS endpoint configuration
 - `src/main/webapp/index.jsp`: Simple web page showing service information
 
 ## Prerequisites
@@ -25,7 +25,7 @@ To build the project, run:
 mvn clean package
 ```
 
-This will create a WAR file (`jaxrpc-sample.war`) in the `target` directory.
+This will create a WAR file (`jaxws-sample.war`) in the `target` directory.
 
 ## Deploying the Service
 
@@ -36,37 +36,38 @@ This will create a WAR file (`jaxrpc-sample.war`) in the `target` directory.
 2. Start the server if not already running
 
 3. Verify the service is up by accessing:
-   - http://localhost:8080/jaxrpc-sample/
+   - http://localhost:8080/jaxws-sample/
 
 ## Running the Client
 
 To run the client application, execute:
 
 ```bash
-mvn exec:java -Dexec.mainClass="com.example.jaxrpc.client.CalculatorClient"
+mvn exec:java -Dexec.mainClass="com.example.jaxws.client.CalculatorClient"
 ```
 
 Make sure the server is running before executing the client.
 
-## Understanding JAX-RPC
+## Understanding JAX-WS
 
-JAX-RPC (Java API for XML-based RPC) is an older API for creating web services and clients that communicate using XML. It has been largely superseded by JAX-WS, but understanding JAX-RPC is valuable for maintaining legacy systems.
+JAX-WS (Java API for XML Web Services) is a technology for building web services and clients that communicate using XML. JAX-WS is part of the Java EE platform and provides a simplified model for developing web services.
 
 Key components:
 - Service Interface: Defines the operations available on the web service
 - Service Implementation: Implements the business logic
-- WSDD (Web Service Deployment Descriptor): Configures how the service is exposed
+- Annotations: Used to configure the service (@WebService, @WebMethod, etc.)
+- WSDL: Web Service Description Language file generated automatically
 - Client API: Used to invoke the remote service methods
 
 ## Notes
 
-- JAX-RPC has been deprecated in favor of JAX-WS in newer Java EE versions
-- This sample uses Apache Axis 1.4, which is a widely-used implementation of JAX-RPC
-- The client uses dynamic invocation to call the service methods
+- This sample uses Metro (the reference implementation of JAX-WS)
+- The service follows a document/literal pattern for SOAP binding
+- The client uses the standard JAX-WS client API to invoke service methods
 
 ## Troubleshooting
 
 - Ensure all required JAR files are in the classpath
 - Check that the endpoint URL in the client matches the deployed service URL
 - Verify that the service is properly deployed by accessing the WSDL at:
-  http://localhost:8080/jaxrpc-sample/services/CalculatorService?wsdl
+  http://localhost:8080/jaxws-sample/services/CalculatorService?wsdl
