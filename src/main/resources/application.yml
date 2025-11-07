@@ -1,0 +1,13 @@
+micronaut:
+  application:
+    name: micronaut-redis-app
+  server:
+    port: 8080
+
+redis:
+  uri: redis://localhost:6379
+
+netty:
+  default:
+    allocator:
+      max-order: 3
