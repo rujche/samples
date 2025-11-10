@@ -1,38 +1,33 @@
 # Micronaut Redis REST API Application
 
-A REST API service built with Micronaut 4.7.3, Java 21, and Redis using Lettuce client.
+A REST API service built with Micronaut 4.7.3, Java 21, and Azure Cache for Redis with Managed Identity authentication using Lettuce client.
 
 ## Prerequisites
 
 - Java 21
-- Docker (for running Redis)
+- Azure Cache for Redis or Azure Managed Redis instance
+- Azure Managed Identity or Service Principal configured with access to Redis instance
 
 ## Getting Started
 
-### 1. Start Redis with Docker
+### 1. Set Up Azure Redis
 
-Run the following command to start a Redis container:
+This application uses Azure Cache for Redis with Managed Identity authentication. Ensure you have:
 
+1. An Azure Cache for Redis or Azure Managed Redis instance created
+2. A Managed Identity or Service Principal with appropriate permissions to access the Redis instance
+3. The following environment variables configured:
+   - `AZURE_REDIS_URI`: Your Azure Redis URI (e.g., `rediss://example.redis.cache.windows.net:6380`)
+   - `AZURE_MANAGED_IDENTITY_OBJECT_ID`: The Object ID of your Managed Identity or Service Principal
+
+**Note**: For local development with a local Redis instance, you can use:
 ```bash
 docker run --name redis -p 6379:6379 -d redis:latest
 ```
-
-To verify Redis is running:
-
+And set environment variables:
 ```bash
-docker ps
-```
-
-To stop Redis:
-
-```bash
-docker stop redis
-```
-
-To remove the Redis container:
-
-```bash
-docker rm redis
+export AZURE_REDIS_URI=redis://localhost:6379
+export AZURE_MANAGED_IDENTITY_OBJECT_ID=local-dev-id
 ```
 
 ### 2. Build the Application
@@ -127,14 +122,27 @@ curl -X DELETE http://localhost:8080/api/items/1
 
 ## Configuration
 
-The Redis connection is configured in `src/main/resources/application.yml`:
+The Redis connection is configured in `src/main/resources/application.yml` using environment variables:
 
 ```yaml
 redis:
-  uri: redis://localhost:6379
+  # Example Azure Cache for Redis uri: rediss://example.redis.cache.windows.net:6380
+  uri: ${AZURE_REDIS_URI}
+  # Username should be the Object ID of your Managed Identity or Service Principal
+  username: ${AZURE_MANAGED_IDENTITY_OBJECT_ID}
 ```
 
-To connect to a different Redis instance, update the URI in the configuration file.
+The application uses Azure Managed Identity for authentication. The `AzureRedisConfiguration` class handles:
+- Obtaining Azure access tokens using `DefaultAzureCredential`
+- Configuring the Redis client with RESP3 protocol for Azure Entra ID authentication
+- Establishing SSL/TLS connections to Azure Redis
+
+Set the required environment variables before running the application:
+
+```bash
+export AZURE_REDIS_URI=rediss://your-redis-instance.redis.cache.windows.net:6380
+export AZURE_MANAGED_IDENTITY_OBJECT_ID=your-managed-identity-object-id
+```
 
 ## Technologies Used
 
@@ -142,6 +150,7 @@ To connect to a different Redis instance, update the URI in the configuration fi
 - **Java**: 21
 - **Gradle**: 8.11.1
 - **Redis Client**: micronaut-redis-lettuce
+- **Azure Identity**: 1.12.2 (for Managed Identity authentication)
 - **Serialization**: micronaut-serde-jackson
 
 ## Development
