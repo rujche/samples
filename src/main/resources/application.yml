@@ -5,7 +5,10 @@ micronaut:
     port: 8080
 
 redis:
-  uri: redis://localhost:6379
+  # Example Azure Cache for Redis uri: rediss://example.redis.cache.windows.net:6380
+  uri: ${AZURE_REDIS_URI}
+  # Username should be the Object ID of your Managed Identity or Service Principal
+  username: ${AZURE_MANAGED_IDENTITY_OBJECT_ID}
 
 netty:
   default:
