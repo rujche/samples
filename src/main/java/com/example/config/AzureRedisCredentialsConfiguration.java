@@ -36,7 +36,7 @@ import reactor.core.publisher.Mono;
  * <p>
  * <strong>Prerequisites:</strong>
  * <ul>
- *   <li>The Managed Identity must have the authority to access Redis (e.g., "Redis Cache Contributor" role).</li>
+ *   <li>The Managed Identity must have the authority to access Redis (e.g., "Redis Cache Data Owner" or "Redis Cache Data Contributor" role).</li>
  *   <li>Environment variable/property {@code azure.redis.username} should be set to the Object ID of the Managed Identity.</li>
  * </ul>
  * <p>
@@ -72,10 +72,10 @@ public class AzureRedisCredentialsConfiguration implements BeanCreatedEventListe
             throw new IllegalArgumentException("Azure Redis username must be set and non-empty (property: azure.redis.username). " +
                     "This should be the Object ID of your Managed Identity or Service Principal.");
         }
-        this.username = username;
+        this.username = username.trim();
         this.credential = new DefaultAzureCredentialBuilder().build();
         this.tokenContext = new TokenRequestContext().addScopes(REDIS_SCOPE);
-        LOG.info("Initialized Azure Managed Identity credentials provider for Redis authentication with username: {}", username);
+        LOG.info("Initialized Azure Managed Identity credentials provider for Redis authentication with username: {}", this.username);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class AzureRedisCredentialsConfiguration implements BeanCreatedEventListe
     private Mono<RedisCredentials> resolveAzureCredentials() {
         return Mono.defer(() -> {
             LOG.debug("Resolving Azure Managed Identity credentials for Redis");
-            return credential.getToken(tokenContext)
+            return Mono.fromCallable(() -> credential.getToken(tokenContext))
                     .doOnNext(token -> LOG.debug("Successfully obtained/refreshed Azure access token for Redis authentication"))
                     .map(token -> RedisCredentials.just(username, token.getToken()))
                     .onErrorMap(e -> {
@@ -116,10 +116,10 @@ public class AzureRedisCredentialsConfiguration implements BeanCreatedEventListe
 
                             LOG.error("Permission error while obtaining Azure access token for Redis authentication. " +
                                     "The Managed Identity does not have the necessary permissions. " +
-                                    "Please ensure the Managed Identity has 'Redis Cache Contributor' role or appropriate permissions.", e);
+                                    "Please ensure the Managed Identity has 'Redis Cache Data Owner' or 'Redis Cache Data Contributor' role assigned, or appropriate permissions.", e);
                             return new SecurityException(
                                     "Permission denied: The Managed Identity does not have authority to access Azure Redis. " +
-                                            "Please assign the 'Redis Cache Contributor' role or appropriate permissions to the Managed Identity with Object ID: " + username, e);
+                                            "Please assign the 'Redis Cache Data Owner' or 'Redis Cache Data Contributor' role, or appropriate permissions, to the Managed Identity with Object ID: " + username, e);
                         }
 
                         // Check for network/connectivity errors (retryable)
