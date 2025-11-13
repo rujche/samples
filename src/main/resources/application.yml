@@ -5,7 +5,14 @@ micronaut:
     port: 8080
 
 redis:
-  uri: redis://localhost:6379
+  # AZURE_REDIS_URI should be set to your Azure Redis instance URI, e.g. `rediss://example.redis.cache.windows.net:6380`.
+  uri: ${AZURE_REDIS_URI}
+  credentials-provider: managedIdentityCredentialsProvider
+
+azure:
+  redis:
+  # AZURE_MANAGED_IDENTITY_OBJECT_ID should be set to the Object ID of your Managed Identity or Service Principal, e.g. `12345678-90ab-cdef-1234-567890abcdef`.
+  username: ${AZURE_MANAGED_IDENTITY_OBJECT_ID}
 
 netty:
   default:
