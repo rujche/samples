@@ -5,22 +5,24 @@ import com.azure.identity.DefaultAzureCredential;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import io.lettuce.core.RedisCredentials;
 import io.lettuce.core.RedisCredentialsProvider;
+import io.micronaut.configuration.lettuce.AbstractRedisConfiguration;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.annotation.Value;
-import jakarta.inject.Named;
+import io.micronaut.context.event.BeanCreatedEvent;
+import io.micronaut.context.event.BeanCreatedEventListener;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 /**
- * Credentials provider for Azure Redis with Managed Identity authentication.
+ * Configuration for Azure Redis with Managed Identity authentication.
  * It enables Managed Identity authentication for Azure Cache for Redis and Azure Managed Redis.
  * <p>
- * This provider integrates with Micronaut Redis Lettuce's existing configuration mechanism
- * by providing a {@link RedisCredentialsProvider} bean that can be referenced in the
- * {@code redis.credentials-provider} property. This approach preserves all existing
- * Micronaut Redis features including:
+ * This configuration uses a {@link BeanCreatedEventListener} to intercept the creation of
+ * {@link AbstractRedisConfiguration} and inject a {@link RedisCredentialsProvider} that uses
+ * Azure Managed Identity for authentication. This approach preserves all existing
+ * Micronaut Redis Lettuce features including:
  * <ul>
  *   <li>Connection pooling configuration ({@code redis.pool.*})</li>
  *   <li>Master-replica setup ({@code redis.replica-uris})</li>
@@ -35,7 +37,6 @@ import reactor.core.publisher.Mono;
  * <strong>Prerequisites:</strong>
  * <ul>
  *   <li>The Managed Identity must have the authority to access Redis (e.g., "Redis Cache Contributor" role).</li>
- *   <li>Environment variable/property {@code redis.credentials-provider} must be set to "managedIdentityCredentialsProvider".</li>
  *   <li>Environment variable/property {@code azure.redis.username} should be set to the Object ID of the Managed Identity.</li>
  * </ul>
  * <p>
@@ -43,7 +44,6 @@ import reactor.core.publisher.Mono;
  * <pre>
  * redis:
  *   uri: rediss://example.redis.cache.windows.net:6380
- *   credentials-provider: managedIdentityCredentialsProvider
  *   pool:
  *     enabled: true
  *     max-total: 8
@@ -54,20 +54,20 @@ import reactor.core.publisher.Mono;
  *
  * @see DefaultAzureCredential
  * @see RedisCredentialsProvider
+ * @see BeanCreatedEventListener
  */
 @Singleton
-@Named("managedIdentityCredentialsProvider")
 @Requires(property = "azure.redis.username")
-public class AzureManagedIdentityCredentialsProvider implements RedisCredentialsProvider {
+public class AzureRedisCredentialsConfiguration implements BeanCreatedEventListener<AbstractRedisConfiguration> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AzureManagedIdentityCredentialsProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AzureRedisCredentialsConfiguration.class);
     private static final String REDIS_SCOPE = "https://redis.azure.com/.default";
 
     private final String username;
     private final DefaultAzureCredential credential;
     private final TokenRequestContext tokenContext;
 
-    public AzureManagedIdentityCredentialsProvider(@Value("${azure.redis.username}") String username) {
+    public AzureRedisCredentialsConfiguration(@Value("${azure.redis.username}") String username) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Azure Redis username must be set and non-empty (property: azure.redis.username). " +
                     "This should be the Object ID of your Managed Identity or Service Principal.");
@@ -79,7 +79,15 @@ public class AzureManagedIdentityCredentialsProvider implements RedisCredentials
     }
 
     @Override
-    public Mono<RedisCredentials> resolveCredentials() {
+    public AbstractRedisConfiguration onCreated(BeanCreatedEvent<AbstractRedisConfiguration> event) {
+        AbstractRedisConfiguration config = event.getBean();
+        // Inject the credentials provider into the Redis configuration
+        config.setCredentialsProvider(this::resolveAzureCredentials);
+        LOG.info("Injected Azure Managed Identity credentials provider into Redis configuration");
+        return config;
+    }
+
+    private Mono<RedisCredentials> resolveAzureCredentials() {
         return Mono.defer(() -> {
             LOG.debug("Resolving Azure Managed Identity credentials for Redis");
             return credential.getToken(tokenContext)
@@ -130,4 +138,5 @@ public class AzureManagedIdentityCredentialsProvider implements RedisCredentials
                     });
         });
     }
+
 }

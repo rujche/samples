@@ -7,7 +7,6 @@ micronaut:
 redis:
   # AZURE_REDIS_URI should be set to your Azure Redis instance URI, e.g. `rediss://example.redis.cache.windows.net:6380`.
   uri: ${AZURE_REDIS_URI}
-  credentials-provider: managedIdentityCredentialsProvider
 
 azure:
   redis:
