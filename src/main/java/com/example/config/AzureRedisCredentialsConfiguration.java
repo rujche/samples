@@ -81,9 +81,17 @@ public class AzureRedisCredentialsConfiguration implements BeanCreatedEventListe
     @Override
     public AbstractRedisConfiguration onCreated(BeanCreatedEvent<AbstractRedisConfiguration> event) {
         AbstractRedisConfiguration config = event.getBean();
-        // Inject the credentials provider into the Redis configuration
+
+        // Set credentials provider on the RedisURI if present
+        config.getUri().ifPresent(uri -> {
+            uri.setCredentialsProvider(this::resolveAzureCredentials);
+            LOG.info("Injected Azure Managed Identity credentials provider into RedisURI: {}", uri.getHost());
+        });
+
+        // Also set on the configuration itself (as it extends RedisURI)
         config.setCredentialsProvider(this::resolveAzureCredentials);
         LOG.info("Injected Azure Managed Identity credentials provider into Redis configuration");
+
         return config;
     }
 

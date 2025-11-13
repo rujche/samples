@@ -10,8 +10,8 @@ redis:
 
 azure:
   redis:
-  # AZURE_MANAGED_IDENTITY_OBJECT_ID should be set to the Object ID of your Managed Identity or Service Principal, e.g. `12345678-90ab-cdef-1234-567890abcdef`.
-  username: ${AZURE_MANAGED_IDENTITY_OBJECT_ID}
+    # AZURE_MANAGED_IDENTITY_OBJECT_ID should be set to the Object ID of your Managed Identity or Service Principal, e.g. `12345678-90ab-cdef-1234-567890abcdef`.
+    username: ${AZURE_MANAGED_IDENTITY_OBJECT_ID}
 
 netty:
   default:
