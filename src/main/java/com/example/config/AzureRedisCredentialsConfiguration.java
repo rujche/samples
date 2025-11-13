@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+
 /**
  * Configuration for Azure Redis with Managed Identity authentication.
  * It enables Managed Identity authentication for Azure Cache for Redis and Azure Managed Redis.
@@ -98,7 +100,7 @@ public class AzureRedisCredentialsConfiguration implements BeanCreatedEventListe
     private Mono<RedisCredentials> resolveAzureCredentials() {
         return Mono.defer(() -> {
             LOG.debug("Resolving Azure Managed Identity credentials for Redis");
-            return Mono.fromCallable(() -> credential.getToken(tokenContext))
+            return credential.getToken(tokenContext)
                     .doOnNext(token -> LOG.debug("Successfully obtained/refreshed Azure access token for Redis authentication"))
                     .map(token -> RedisCredentials.just(username, token.getToken()))
                     .onErrorMap(e -> {
@@ -134,7 +136,7 @@ public class AzureRedisCredentialsConfiguration implements BeanCreatedEventListe
 
                             LOG.warn("Network error while obtaining Azure access token for Redis authentication. " +
                                     "This is a transient error and may be retried.", e);
-                            return new java.io.IOException(
+                            return new IOException(
                                     "Network error while obtaining Azure access token: " + e.getMessage() +
                                             ". This is a transient error that can be retried.", e);
                         }
