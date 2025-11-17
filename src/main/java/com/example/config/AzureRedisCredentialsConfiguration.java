@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 
 /**
  * Configuration for Azure Redis with Managed Identity authentication.
@@ -102,50 +101,7 @@ public class AzureRedisCredentialsConfiguration implements BeanCreatedEventListe
             LOG.debug("Resolving Azure Managed Identity credentials for Redis");
             return credential.getToken(tokenContext)
                     .doOnNext(token -> LOG.debug("Successfully obtained/refreshed Azure access token for Redis authentication"))
-                    .map(token -> RedisCredentials.just(username, token.getToken()))
-                    .onErrorMap(e -> {
-                        // Distinguish between retryable and non-retryable errors
-                        String errorMessage = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
-                        String errorType = e.getClass().getSimpleName();
-
-                        // Check for permission/authorization errors (non-retryable)
-                        if (errorMessage.contains("unauthorized") ||
-                                errorMessage.contains("forbidden") ||
-                                errorMessage.contains("access denied") ||
-                                errorMessage.contains("permission") ||
-                                errorMessage.contains("not authorized") ||
-                                errorType.contains("CredentialUnavailable")) {
-
-                            LOG.error("Permission error while obtaining Azure access token for Redis authentication. " +
-                                    "The Managed Identity does not have the necessary permissions. " +
-                                    "Please ensure the Managed Identity has 'Redis Cache Data Owner' or 'Redis Cache Data Contributor' role assigned, or appropriate permissions.", e);
-                            return new SecurityException(
-                                    "Permission denied: The Managed Identity does not have authority to access Azure Redis. " +
-                                            "Please assign the 'Redis Cache Data Owner' or 'Redis Cache Data Contributor' role, or appropriate permissions, to the Managed Identity with Object ID: " + username, e);
-                        }
-
-                        // Check for network/connectivity errors (retryable)
-                        if (errorMessage.contains("timeout") ||
-                                errorMessage.contains("connection") ||
-                                errorMessage.contains("network") ||
-                                errorMessage.contains("connect timed out") ||
-                                errorMessage.contains("unreachable") ||
-                                errorType.contains("IOException") ||
-                                errorType.contains("ConnectException") ||
-                                errorType.contains("SocketTimeoutException")) {
-
-                            LOG.warn("Network error while obtaining Azure access token for Redis authentication. " +
-                                    "This is a transient error and may be retried.", e);
-                            return new IOException(
-                                    "Network error while obtaining Azure access token: " + e.getMessage() +
-                                            ". This is a transient error that can be retried.", e);
-                        }
-
-                        // Default: treat as retryable but log as error
-                        LOG.error("Failed to obtain Azure access token for Redis authentication. Error type: {}. This may be retryable.", errorType, e);
-                        return new RuntimeException(
-                                "Failed to obtain Azure access token for Redis authentication: " + e.getMessage(), e);
-                    });
+                    .map(token -> RedisCredentials.just(username, token.getToken()));
         });
     }
 
