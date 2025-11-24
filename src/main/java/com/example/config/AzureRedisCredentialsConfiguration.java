@@ -38,19 +38,21 @@ import reactor.core.publisher.Mono;
  * <strong>Prerequisites:</strong>
  * <ul>
  *   <li>The Managed Identity must have the authority to access Redis (e.g., "Redis Cache Data Owner" or "Redis Cache Data Contributor" role).</li>
- *   <li>Environment variable/property {@code azure.redis.username} should be set to the Object ID of the Managed Identity.</li>
+ *   <li>Environment variable/property {@code redis.username} should be set to the Object ID of the Managed Identity.</li>
+ *   <li>Optional: For user-assigned managed identity, set {@code azure.redis.client-id} to the Client ID of the user-assigned managed identity.</li>
  * </ul>
  * <p>
  * <strong>Configuration Example:</strong>
  * <pre>
  * redis:
  *   uri: rediss://example.redis.cache.windows.net:6380
+ *   username: ${AZURE_MANAGED_IDENTITY_OBJECT_ID}
  *   pool:
  *     enabled: true
  *     max-total: 8
  * azure:
  *   redis:
- *     username: ${AZURE_MANAGED_IDENTITY_OBJECT_ID}
+ *     client-id: ${AZURE_MANAGED_IDENTITY_CLIENT_ID:}  # Optional, for user-assigned MI
  * </pre>
  *
  * @see DefaultAzureCredential
@@ -58,7 +60,7 @@ import reactor.core.publisher.Mono;
  * @see BeanCreatedEventListener
  */
 @Singleton
-@Requires(property = "azure.redis.username")
+@Requires(property = "redis.username")
 public class AzureRedisCredentialsConfiguration implements BeanCreatedEventListener<AbstractRedisConfiguration> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AzureRedisCredentialsConfiguration.class);
@@ -68,15 +70,27 @@ public class AzureRedisCredentialsConfiguration implements BeanCreatedEventListe
     private final DefaultAzureCredential credential;
     private final TokenRequestContext tokenContext;
 
-    public AzureRedisCredentialsConfiguration(@Value("${azure.redis.username}") String username) {
+    public AzureRedisCredentialsConfiguration(
+            @Value("${redis.username}") String username,
+            @Value("${azure.redis.client-id:}") String clientId) {
         if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("Azure Redis username must be set and non-empty (property: azure.redis.username). " +
+            throw new IllegalArgumentException("Azure Redis username must be set and non-empty (property: redis.username). " +
                     "This should be the Object ID of your Managed Identity or Service Principal.");
         }
         this.username = username.trim();
-        this.credential = new DefaultAzureCredentialBuilder().build();
+
+        // Build credential with optional client ID for user-assigned managed identity
+        DefaultAzureCredentialBuilder builder = new DefaultAzureCredentialBuilder();
+        if (clientId != null && !clientId.trim().isEmpty()) {
+            builder.managedIdentityClientId(clientId.trim());
+            LOG.info("Initialized Azure Managed Identity credentials provider with user-assigned managed identity (client ID: {}) for Redis authentication", clientId.trim());
+        } else {
+            LOG.info("Initialized Azure Managed Identity credentials provider with default credential chain for Redis authentication");
+        }
+        this.credential = builder.build();
+
         this.tokenContext = new TokenRequestContext().addScopes(REDIS_SCOPE);
-        LOG.info("Initialized Azure Managed Identity credentials provider for Redis authentication with username: {}", this.username);
+        LOG.info("Using Redis username (object ID): {}", this.username);
     }
 
     @Override
